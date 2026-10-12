@@ -18,7 +18,7 @@ import { postId as postIdSearchParam } from '@gitroom/nestjs-libraries/temporal/
 
 const proxyTaskQueue = (taskQueue: string) => {
   return proxyActivities<PostActivity>({
-    startToCloseTimeout: '10 minute',
+    startToCloseTimeout: '30 minute',
     taskQueue,
     retry: {
       maximumAttempts: 3,
@@ -86,7 +86,7 @@ const {
   sendWebhooks,
   isCommentable,
 } = proxyActivities<PostActivity>({
-  startToCloseTimeout: '10 minute',
+  startToCloseTimeout: '30 minute',
   retry: {
     maximumAttempts: 3,
     backoffCoefficient: 1,
