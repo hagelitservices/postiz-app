@@ -878,6 +878,13 @@
   "tiktok_loading_account": "Loading TikTok account…",
   "tiktok_account_info_unavailable": "Could not load this TikTok account. Please try again later.",
   "tiktok_creator_cannot_post": "This TikTok account cannot post right now. Please try again later.",
+  "tiktok_disclose_choose_one": "You need to indicate if your content promotes yourself, a third party, or both.",
+  "tiktok_video_too_long": "This video is {{duration}}s long. This TikTok account can post videos up to {{max}}s.",
+  "tiktok_photo_labeled_paid_partnership": "Your photo will be labeled as 'Paid partnership'.",
+  "tiktok_video_labeled_paid_partnership": "Your video will be labeled as 'Paid partnership'.",
+  "tiktok_photo_labeled_promotional": "Your photo will be labeled as 'Promotional content'.",
+  "tiktok_video_labeled_promotional": "Your video will be labeled as 'Promotional content'.",
+  "tiktok_processing_notice": "Your content may take a few minutes to process and appear on your profile.",
   "tiktok_posting_to_account": "Posting to TikTok account:",
   "tiktok_max_video_duration": "Maximum video length for this account:"
 }

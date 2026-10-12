@@ -1,8 +1,25 @@
 import {
-  IsBoolean, ValidateIf, IsIn, IsString, MaxLength, IsOptional, IsDefined, IsNumber, Min, Max, ValidateNested
+  IsBoolean, ValidateIf, IsIn, IsString, MaxLength, IsOptional, IsDefined, IsNumber, Min, Max, ValidateNested,
+  registerDecorator, ValidationArguments
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { JSONSchema } from 'class-validator-jsonschema';
+
+// Kaido: a rule across several fields of the settings. A ValidateIf would
+// switch off every other validator of the property, this one does not.
+function TikTokRule(valid: (settings: any) => boolean, message: string) {
+  return (object: object, propertyName: string) =>
+    registerDecorator({
+      name: 'tiktokRule',
+      target: object.constructor,
+      propertyName,
+      options: { message },
+      validator: {
+        validate: (_value: any, args: ValidationArguments) =>
+          valid(args.object),
+      },
+    });
+}
 
 export class TikTokMusic {
   @IsDefined()
@@ -130,11 +147,24 @@ export class TikTokDto {
   autoAddMusic: 'yes' | 'no';
 
   @IsBoolean()
+  // Kaido (guideline 3b)
+  @TikTokRule(
+    (s) => !(s?.brand_content_toggle === true && s?.privacy_level === 'SELF_ONLY'),
+    'Branded content visibility cannot be set to private.'
+  )
   @JSONSchema({
     description:
-      'Applied only when content_posting_method=DIRECT_POST. Ignored by TikTok on UPLOAD.',
+      'Marks the post as branded content (promoting a third party, labeled "Paid partnership"). Cannot be combined with privacy_level SELF_ONLY. Applied only when content_posting_method=DIRECT_POST. Ignored by TikTok on UPLOAD.',
   })
   brand_content_toggle: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  @JSONSchema({
+    description:
+      'The commercial content disclosure switch. When true, at least one of brand_organic_toggle or brand_content_toggle must be true.',
+  })
+  disclose?: boolean;
 
   @IsBoolean()
   @IsOptional()
@@ -145,9 +175,19 @@ export class TikTokDto {
   video_made_with_ai: boolean;
 
   @IsBoolean()
+  // Kaido (guideline 3a)
+  @TikTokRule(
+    (s) =>
+      !(
+        s?.disclose === true &&
+        s?.brand_organic_toggle !== true &&
+        s?.brand_content_toggle !== true
+      ),
+    'You need to indicate if your content promotes yourself, a third party, or both.'
+  )
   @JSONSchema({
     description:
-      'Applied only when content_posting_method=DIRECT_POST. Ignored by TikTok on UPLOAD.',
+      'Marks the post as promoting yourself or your own business (labeled "Promotional content"). Applied only when content_posting_method=DIRECT_POST. Ignored by TikTok on UPLOAD.',
   })
   brand_organic_toggle: boolean;
 

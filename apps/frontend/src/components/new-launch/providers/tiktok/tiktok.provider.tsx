@@ -4,6 +4,7 @@ import {
   FC,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import {
@@ -22,6 +23,7 @@ import { Input } from '@gitroom/react/form/input';
 import { TiktokPreview } from '@gitroom/frontend/components/new-launch/providers/tiktok/tiktok.preview';
 import { TikTokMusicSelector } from '@gitroom/frontend/components/new-launch/providers/tiktok/tiktok.music';
 import { TikTokLocationSelector } from '@gitroom/frontend/components/new-launch/providers/tiktok/tiktok.location';
+import { useLaunchStore } from '@gitroom/frontend/components/new-launch/store';
 
 const TikTokSettings: FC<{
   values?: any;
@@ -84,6 +86,33 @@ const TikTokSettings: FC<{
   const isUploadMode = isBusiness && content_posting_method === 'UPLOAD';
   const isSelfOnly = privacy_level === 'SELF_ONLY';
 
+  // Guideline 1c: the length of the video is checked against the creator's
+  // limit before posting. The browser reads it from the file's metadata.
+  const videoPath = isVideo ? value?.[0]?.image?.[0]?.path : undefined;
+  const [videoDuration, setVideoDuration] = useState<number | undefined>();
+  useEffect(() => {
+    setVideoDuration(undefined);
+    if (!videoPath) return;
+    let cancelled = false;
+    const video = document.createElement('video');
+    video.preload = 'metadata';
+    video.muted = true;
+    video.onloadedmetadata = () => {
+      if (!cancelled && Number.isFinite(video.duration)) {
+        setVideoDuration(video.duration);
+      }
+    };
+    video.src = videoPath;
+    return () => {
+      cancelled = true;
+      video.removeAttribute('src');
+      video.load();
+    };
+  }, [videoPath]);
+  const maxDuration = creator?.maxVideoPostDurationSec;
+  const tooLong =
+    !!maxDuration && videoDuration !== undefined && videoDuration > maxDuration;
+
   const commentDisabled = !!creator?.commentDisabled;
   const duetDisabled = !!creator?.duetDisabled;
   const stitchDisabled = !!creator?.stitchDisabled;
@@ -104,6 +133,20 @@ const TikTokSettings: FC<{
     }
   }, [isSelfOnly, brand_content_toggle, setValue]);
 
+  // Guideline 3a: the two boxes belong to the disclosure switch. Switching it
+  // off clears them, so no hidden label goes out; a post that carries a label
+  // without the switch (e.g. from the Public API) opens with the switch on.
+  const prevDisclose = useRef(disclose);
+  useEffect(() => {
+    if (prevDisclose.current && !disclose) {
+      if (brand_organic_toggle) setValue('brand_organic_toggle', false);
+      if (brand_content_toggle) setValue('brand_content_toggle', false);
+    } else if (!disclose && (brand_organic_toggle || brand_content_toggle)) {
+      setValue('disclose', true);
+    }
+    prevDisclose.current = disclose;
+  }, [disclose, brand_organic_toggle, brand_content_toggle, setValue]);
+
   // Guideline 2c: an interaction the creator switched off in TikTok must not be
   // sent as allowed, even if it was ticked before creator_info arrived.
   useEffect(() => {
@@ -111,6 +154,55 @@ const TikTokSettings: FC<{
     if (duetDisabled && watch('duet')) setValue('duet', false);
     if (stitchDisabled && watch('stitch')) setValue('stitch', false);
   }, [commentDisabled, duetDisabled, stitchDisabled, setValue]);
+
+  // Guideline 3a: with the disclosure on, at least one of the two boxes.
+  const discloseIncomplete =
+    !!disclose && !brand_organic_toggle && !brand_content_toggle;
+  const discloseRequired = t(
+    'tiktok_disclose_choose_one',
+    'You need to indicate if your content promotes yourself, a third party, or both.'
+  );
+  const tooLongText = tooLong
+    ? t(
+        'tiktok_video_too_long',
+        'This video is {{duration}}s long. This TikTok account can post videos up to {{max}}s.',
+        {
+          duration: Math.ceil(videoDuration!),
+          max: maxDuration,
+        }
+      )
+    : '';
+
+  // Guidelines 1b, 1c, 3a: while one of these holds, the schedule and post
+  // buttons stay disabled and show the reason on hover (drafts still save).
+  const setPostBlocker = useLaunchStore((state) => state.setPostBlocker);
+  const blocker = discloseIncomplete
+    ? discloseRequired
+    : isBusiness
+    ? ''
+    : creator === undefined
+    ? t('tiktok_loading_account', 'Loading TikTok account…')
+    : creator === null
+    ? t(
+        'tiktok_account_info_unavailable',
+        'Could not load this TikTok account. Please try again later.'
+      )
+    : creator.canPost === false
+    ? t(
+        'tiktok_creator_cannot_post',
+        'This TikTok account cannot post right now. Please try again later.'
+      )
+    : tooLongText;
+  useEffect(() => {
+    if (!integration?.id) return;
+    setPostBlocker(integration.id, blocker || undefined);
+  }, [integration?.id, blocker, setPostBlocker]);
+  useEffect(() => {
+    const id = integration?.id;
+    return () => {
+      if (id) setPostBlocker(id);
+    };
+  }, [integration?.id, setPostBlocker]);
 
   const disabledByCreator = t(
     'tiktok_disabled_in_creator_settings',
@@ -238,6 +330,11 @@ const TikTokSettings: FC<{
                     'Maximum video length for this account:'
                   )}{' '}
                   {creator.maxVideoPostDurationSec}s
+                </div>
+              )}
+              {tooLong && (
+                <div className="text-red-400" role="alert">
+                  {tooLongText}
                 </div>
               )}
             </>
@@ -440,9 +537,15 @@ const TikTokSettings: FC<{
               value: false,
             })}
           />
-          {disclose && (
-            <div className="bg-tableBorder p-[10px] mt-[10px] rounded-[10px] flex gap-[20px] items-center">
-              <div>
+          {/* Guideline 3a: the label follows the boxes - "Paid partnership"
+              as soon as branded content is ticked, "Promotional content" for
+              your brand alone. */}
+          {disclose && (brand_organic_toggle || brand_content_toggle) && (
+            <div
+              className="bg-tableBorder p-[10px] mt-[10px] rounded-[10px] flex gap-[20px] items-center"
+              aria-live="polite"
+            >
+              <div aria-hidden="true">
                 <svg
                   width="24"
                   height="24"
@@ -457,10 +560,25 @@ const TikTokSettings: FC<{
                 </svg>
               </div>
               <div>
-                {t(
-                  'your_video_will_be_labeled_promotional',
-                  'Your video will be labeled "Promotional Content".'
-                )}
+                {brand_content_toggle
+                  ? isPhoto
+                    ? t(
+                        'tiktok_photo_labeled_paid_partnership',
+                        "Your photo will be labeled as 'Paid partnership'."
+                      )
+                    : t(
+                        'tiktok_video_labeled_paid_partnership',
+                        "Your video will be labeled as 'Paid partnership'."
+                      )
+                  : isPhoto
+                  ? t(
+                      'tiktok_photo_labeled_promotional',
+                      "Your photo will be labeled as 'Promotional content'."
+                    )
+                  : t(
+                      'tiktok_video_labeled_promotional',
+                      "Your video will be labeled as 'Promotional content'."
+                    )}
                 <br />
                 {t(
                   'this_cannot_be_changed_once_posted',
@@ -521,6 +639,11 @@ const TikTokSettings: FC<{
               {brandedNotPrivate}
             </div>
           )}
+          {discloseIncomplete && (
+            <div className="text-balance my-[10px] text-[14px] text-red-400" role="alert">
+              {discloseRequired}
+            </div>
+          )}
         </div>
         {/* Guideline 2 (note) and 4: the declaration is always shown before
             the post button, not only when content is disclosed. */}
@@ -551,6 +674,13 @@ const TikTokSettings: FC<{
             {t('music_usage_confirmation', 'Music Usage Confirmation')}
           </a>
           .
+        </div>
+        {/* Guideline 5d */}
+        <div className="mt-[10px] text-[14px] text-balance">
+          {t(
+            'tiktok_processing_notice',
+            'Your content may take a few minutes to process and appear on your profile.'
+          )}
         </div>
       </div>
     </div>

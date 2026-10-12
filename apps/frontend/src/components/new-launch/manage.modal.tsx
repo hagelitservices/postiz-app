@@ -100,6 +100,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
     integrations,
     setSelectedIntegrations,
     locked,
+    postBlockers,
     current,
     activateExitButton,
     setHide,
@@ -122,9 +123,24 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
       integrations: state.integrations,
       setSelectedIntegrations: state.setSelectedIntegrations,
       locked: state.locked,
+      postBlockers: state.postBlockers,
       activateExitButton: state.activateExitButton,
     }))
   );
+  // Kaido (TikTok Content Sharing Guidelines 1b, 1c, 3a): a selected channel
+  // whose settings hold back publishing disables scheduling and posting (not
+  // the draft), with the reason on hover.
+  const postBlocker = useMemo(() => {
+    const blocked = selectedIntegrations.find(
+      (p) => postBlockers[p.integration.id]
+    );
+    return blocked
+      ? `${capitalize(blocked.integration.identifier.split('-')[0])} (${
+          blocked.integration.name
+        }): ${postBlockers[blocked.integration.id]}`
+      : '';
+  }, [selectedIntegrations, postBlockers]);
+
   // the other channels of an existing post show and move only their own date
   const channelDate = channelDates[current];
   const pickerDate = channelDate || date;
@@ -316,6 +332,10 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
 
   const schedule = useCallback(
     (type: 'draft' | 'now' | 'schedule' | 'update') => async () => {
+      if (type !== 'draft' && postBlocker) {
+        toaster.show(postBlocker, 'warning');
+        return;
+      }
       let republish = false;
       // the channels saved as another type, the rest are saved as `type`
       const saveAs: Record<string, 'draft' | 'schedule' | 'update'> = {};
@@ -773,10 +793,24 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
 
         if (!addEditSets) {
           mutate();
+          // Kaido (TikTok Content Sharing Guideline 5d)
+          const toTikTok = posts.some(
+            (p: any) =>
+              saveTypeOf(p.integration.id) !== 'draft' &&
+              integrationById(p.integration.id)?.integration?.identifier ===
+                'tiktok'
+          );
           toaster.show(
-            !existingData.integration
+            (!existingData.integration
               ? t('added_successfully', 'Added successfully')
-              : t('updated_successfully', 'Updated successfully')
+              : t('updated_successfully', 'Updated successfully')) +
+              (toTikTok
+                ? ' ' +
+                  t(
+                    'tiktok_processing_notice',
+                    'Your content may take a few minutes to process and appear on your profile.'
+                  )
+                : '')
           );
         }
         if (customClose) {
@@ -802,6 +836,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
       addEditSets,
       dummy,
       shortlinkPreferenceData,
+      postBlocker,
     ]
   );
 
@@ -1149,11 +1184,25 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
               </button>
             )}
             {!addEditSets && (
-              <div ref={postNowRef} className="group cursor-pointer relative">
+              <div
+                ref={postNowRef}
+                className="group cursor-pointer relative"
+                // a disabled button gets no hover, the wrapper carries the reason
+                {...(postBlocker
+                  ? {
+                      'data-tooltip-id': 'tooltip',
+                      'data-tooltip-content': postBlocker,
+                    }
+                  : {})}
+              >
                 <button
                   disabled={
-                    selectedIntegrations.length === 0 || loading || locked
+                    selectedIntegrations.length === 0 ||
+                    loading ||
+                    locked ||
+                    !!postBlocker
                   }
+                  aria-describedby={postBlocker ? 'post-blocker' : undefined}
                   onClick={schedule('schedule')}
                   className="text-white relative min-w-[180px] btnSub disabled:cursor-not-allowed disabled:opacity-80 outline-none gap-[8px] flex justify-center items-center h-[44px] rounded-[8px] bg-[#612BD3] ps-[20px] pe-[16px]"
                 >
@@ -1190,15 +1239,27 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                   )}
                 </button>
 
+                {!!postBlocker && (
+                  <span id="post-blocker" className="sr-only">
+                    {postBlocker}
+                  </span>
+                )}
                 {!dummy && (
                   <button
                     onClick={schedule('now')}
                     disabled={
-                      selectedIntegrations.length === 0 || loading || locked
+                      selectedIntegrations.length === 0 ||
+                      loading ||
+                      locked ||
+                      !!postBlocker
                     }
                     className={clsx(
                       'rounded-[8px] z-[300] disabled:cursor-not-allowed disabled:opacity-80 absolute bottom-[100%] -left-[12px] p-[12px] w-[206px] bg-newBgColorInner',
-                      showPostNow ? 'flex' : 'hidden group-hover:flex'
+                      postBlocker
+                        ? 'hidden'
+                        : showPostNow
+                        ? 'flex'
+                        : 'hidden group-hover:flex'
                     )}
                   >
                     <div className="text-white rounded-[8px] bg-[#D82D7E] h-[44px] w-full flex justify-center items-center post-now">
