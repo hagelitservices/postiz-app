@@ -759,12 +759,14 @@ export const LaunchesComponent = () => {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={t('source_code_agpl', 'Source code (AGPL-3.0)')}
-              className="self-center px-[8px] py-[6px] text-[12px] underline underline-offset-2 opacity-80 hover:opacity-100 rounded-[4px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              className="self-center whitespace-nowrap px-[8px] py-[6px] text-[12px] underline underline-offset-2 opacity-80 hover:opacity-100 rounded-[4px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <span className="group-[.sidebar]:hidden">
                 {t('source_code_agpl', 'Source code (AGPL-3.0)')}
               </span>
-              <span className="hidden group-[.sidebar]:inline">AGPL</span>
+              <span translate="no" className="hidden group-[.sidebar]:inline">
+                AGPL
+              </span>
             </a>
           </div>
         </div>
