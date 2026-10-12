@@ -1196,15 +1196,16 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                   : {})}
               >
                 <button
+                  // a blocked post stays focusable (aria-disabled, not
+                  // disabled): keyboard and touch users get the reason as a
+                  // toast from schedule(), mouse users on hover
                   disabled={
-                    selectedIntegrations.length === 0 ||
-                    loading ||
-                    locked ||
-                    !!postBlocker
+                    selectedIntegrations.length === 0 || loading || locked
                   }
+                  aria-disabled={postBlocker ? true : undefined}
                   aria-describedby={postBlocker ? 'post-blocker' : undefined}
                   onClick={schedule('schedule')}
-                  className="text-white relative min-w-[180px] btnSub disabled:cursor-not-allowed disabled:opacity-80 outline-none gap-[8px] flex justify-center items-center h-[44px] rounded-[8px] bg-[#612BD3] ps-[20px] pe-[16px]"
+                  className="text-white relative min-w-[180px] btnSub disabled:cursor-not-allowed disabled:opacity-80 aria-disabled:cursor-not-allowed aria-disabled:opacity-80 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#612BD3] dark:focus-visible:outline-[#B69DEC] gap-[8px] flex justify-center items-center h-[44px] rounded-[8px] bg-[#612BD3] ps-[20px] pe-[16px]"
                 >
                   {loading && (
                     <div className="absolute left-[50%] top-[50%] -translate-y-[50%] -translate-x-[50%]">

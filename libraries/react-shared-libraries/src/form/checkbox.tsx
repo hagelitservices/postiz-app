@@ -82,7 +82,7 @@ export const Checkbox = forwardRef<
         onKeyDown={onKeyDown}
         className={clsx(
           'shrink-0 rounded-[4px] select-none w-[24px] h-[24px] justify-center items-center flex text-white',
-          'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B69DEC]',
+          'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#612BD3] dark:focus-visible:outline-[#B69DEC]',
           disabled ? 'cursor-not-allowed' : 'cursor-pointer',
           variant === 'default' || !variant
             ? 'bg-forth'
