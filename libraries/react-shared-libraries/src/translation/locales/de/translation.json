@@ -884,5 +884,6 @@
   "tiktok_video_labeled_promotional": "Dein Video wird als „Werbeinhalt“ gekennzeichnet.",
   "tiktok_processing_notice": "Es kann einige Minuten dauern, bis dein Inhalt verarbeitet ist und auf deinem Profil erscheint.",
   "tiktok_posting_to_account": "Posten auf das TikTok-Konto:",
-  "tiktok_max_video_duration": "Maximale Videolänge für dieses Konto:"
+  "tiktok_max_video_duration": "Maximale Videolänge für dieses Konto:",
+  "source_code_agpl": "Quelltext (AGPL-3.0)"
 }
