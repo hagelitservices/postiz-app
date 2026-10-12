@@ -1,0 +1,10 @@
+{
+  "self_only": "Only me",
+  "tiktok_disabled_in_creator_settings": "Turned off in this account's TikTok settings",
+  "branded_content_visibility_cannot_be_private": "Branded content visibility cannot be set to private.",
+  "tiktok_loading_account": "Loading TikTok account…",
+  "tiktok_account_info_unavailable": "Could not load this TikTok account. Please try again later.",
+  "tiktok_creator_cannot_post": "This TikTok account cannot post right now. Please try again later.",
+  "tiktok_posting_to_account": "Posting to TikTok account:",
+  "tiktok_max_video_duration": "Maximum video length for this account:"
+}

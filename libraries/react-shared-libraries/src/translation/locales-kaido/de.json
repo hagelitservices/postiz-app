@@ -1,0 +1,9 @@
+{
+  "tiktok_disabled_in_creator_settings": "In den TikTok-Einstellungen dieses Kontos ausgeschaltet",
+  "branded_content_visibility_cannot_be_private": "Branded Content kann nicht auf privat gestellt werden.",
+  "tiktok_loading_account": "TikTok-Konto wird geladen …",
+  "tiktok_account_info_unavailable": "Dieses TikTok-Konto konnte nicht geladen werden. Bitte später erneut versuchen.",
+  "tiktok_creator_cannot_post": "Dieses TikTok-Konto kann gerade nicht posten. Bitte später erneut versuchen.",
+  "tiktok_posting_to_account": "Posten auf das TikTok-Konto:",
+  "tiktok_max_video_duration": "Maximale Videolänge für dieses Konto:"
+}
