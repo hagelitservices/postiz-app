@@ -1,5 +1,4 @@
 import {
-  AnalyticsData,
   AuthTokenDetails,
   PendingCheckResponse,
   PostDetails,
@@ -26,8 +25,7 @@ import { Rules } from '@gitroom/nestjs-libraries/chat/rules.description.decorato
 @Rules(
   [
     'TikTok can have one video or one picture or multiple pictures, it cannot be without an attachment.',
-    'content_posting_method=DIRECT_POST publishes the post to the account. content_posting_method=UPLOAD does NOT publish: it only sends the media to the user inbox of the TikTok app, where the user must manually complete and publish it within 24 hours or it is discarded. Use DIRECT_POST unless the user explicitly asks to review or edit the post inside the TikTok app first.',
-    'With content_posting_method=UPLOAD, TikTok ignores every setting except the title / post content. Never tell the user that video_made_with_ai, privacy_level, duet, stitch, comment, autoAddMusic, brand_content_toggle or brand_organic_toggle will be applied in UPLOAD mode - they are silently discarded. If the user asks for any of those settings, tell them it requires DIRECT_POST.',
+    'TikTok posts are always published directly: content_posting_method must be DIRECT_POST. UPLOAD (send to the TikTok inbox as a draft) is not available on this instance and is rejected.',
     'video_made_with_ai, duet and stitch apply to video posts only. TikTok has no equivalent field for photo posts, so those settings are discarded when the attachment is a picture.',
   ].join(' ')
 )
@@ -36,14 +34,11 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
   name = 'Tiktok';
   isBetweenSteps = false;
   convertToJPEG = true;
-  scopes = [
-    'video.list',
-    'user.info.basic',
-    'video.publish',
-    'video.upload',
-    'user.info.profile',
-    'user.info.stats',
-  ];
+  // Kaido (TikTok app review): only the two scopes Direct Post needs. The
+  // username comes from creator_info (video.publish) instead of
+  // user.info.profile; analytics, the video list and the inbox upload, which
+  // needed user.info.stats, video.list and video.upload, are switched off.
+  scopes = ['user.info.basic', 'video.publish'];
   override maxConcurrentJob = 10000;
   dto = TikTokDto;
   editor = 'normal' as const;
@@ -311,21 +306,8 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
       })
     ).json();
 
-    const {
-      data: {
-        user: { avatar_url, display_name, open_id, username },
-      },
-    } = await (
-      await fetch(
-        'https://open.tiktokapis.com/v2/user/info/?fields=open_id,avatar_url,display_name,union_id,username',
-        {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${access_token}`,
-          },
-        }
-      )
-    ).json();
+    const { avatar_url, display_name, open_id, username } =
+      await this.userInfo(access_token);
 
     return {
       refreshToken: refresh_token,
@@ -390,21 +372,8 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
 
     this.checkScopes(this.scopes, scope);
 
-    const {
-      data: {
-        user: { avatar_url, display_name, open_id, username },
-      },
-    } = await (
-      await fetch(
-        'https://open.tiktokapis.com/v2/user/info/?fields=open_id,avatar_url,display_name,union_id,username',
-        {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${access_token}`,
-          },
-        }
-      )
-    ).json();
+    const { avatar_url, display_name, open_id, username } =
+      await this.userInfo(access_token);
 
     return {
       id: open_id.replace(/-/g, ''),
@@ -414,6 +383,52 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
       expiresIn: dayjs().add(23, 'hours').unix() - dayjs().unix(),
       picture: avatar_url,
       username: username,
+    };
+  }
+
+  // user.info.basic has no username; creator_info (video.publish) does. Without
+  // it the profile URL falls back to the display name like before.
+  private async userInfo(accessToken: string) {
+    const {
+      data: {
+        user: { avatar_url, display_name, open_id },
+      },
+    } = await (
+      await fetch(
+        'https://open.tiktokapis.com/v2/user/info/?fields=open_id,avatar_url,display_name',
+        {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      )
+    ).json();
+
+    let username: string | undefined;
+    try {
+      const creator = await (
+        await fetch(
+          'https://open.tiktokapis.com/v2/post/publish/creator_info/query/',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json; charset=UTF-8',
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        )
+      ).json();
+      username = creator?.data?.creator_username || undefined;
+    } catch (err) {
+      username = undefined;
+    }
+
+    return {
+      avatar_url,
+      display_name,
+      open_id,
+      username: username || display_name,
     };
   }
 
@@ -582,29 +597,25 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
     return { post: JSON.parse(raw), publicPostId };
   }
 
-  // UPLOAD does not publish - it only drops the media into the user's TikTok
-  // inbox - so only an explicit UPLOAD selects it. A missing value (drafts, or
-  // any caller that skipped the setting) publishes instead of silently landing
-  // in the inbox.
+  // Kaido (TikTok app review): Direct Post only. UPLOAD would need the
+  // video.upload scope this app does not request, and silently publishing a
+  // post that was meant as an inbox draft would be wrong - so it is rejected.
   private contentPostingMethod(
     firstPost: PostDetails<TikTokDto>
-  ): TikTokDto['content_posting_method'] {
-    return firstPost?.settings?.content_posting_method === 'UPLOAD'
-      ? 'UPLOAD'
-      : 'DIRECT_POST';
+  ): 'DIRECT_POST' {
+    if (firstPost?.settings?.content_posting_method === 'UPLOAD') {
+      throw new BadBody(
+        'tiktok',
+        '{}',
+        '{}',
+        'TikTok UPLOAD (send to inbox) is not available: use DIRECT_POST'
+      );
+    }
+    return 'DIRECT_POST';
   }
 
-  private postingMethod(
-    method: TikTokDto['content_posting_method'],
-    isPhoto: boolean
-  ): string {
-    switch (method) {
-      case 'UPLOAD':
-        return isPhoto ? '/content/init/' : '/inbox/video/init/';
-      case 'DIRECT_POST':
-      default:
-        return isPhoto ? '/content/init/' : '/video/init/';
-    }
+  private postingMethod(isPhoto: boolean): string {
+    return isPhoto ? '/content/init/' : '/video/init/';
   }
 
   // Kaido (TikTok Content Sharing Guideline 2b): the visibility is always the
@@ -626,63 +637,51 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
 
   private buildTikokPostInfoBody(firstPost: PostDetails<TikTokDto>) {
     const isPhoto = !hasExtension(firstPost?.media?.[0]?.path, 'mp4');
-    const method = this.contentPostingMethod(firstPost);
+    this.contentPostingMethod(firstPost);
 
-    if (method === 'DIRECT_POST') {
-      return {
-        post_info: {
-          ...(isPhoto && firstPost.settings.title
-            ? { title: firstPost.settings.title.slice(0, 90) }
-            : {}),
-          ...(!isPhoto && firstPost.message
-            ? { title: firstPost.message }
-            : {}),
-          ...(isPhoto ? { description: firstPost.message } : {}),
-          privacy_level: this.requirePrivacyLevel(firstPost),
-          ...(isPhoto
-            ? {}
-            : { disable_duet: !this.assetBoolean(firstPost.settings.duet) }),
-          disable_comment: !this.assetBoolean(firstPost.settings.comment),
-          ...(isPhoto
-            ? {}
-            : {
-                disable_stitch: !this.assetBoolean(firstPost.settings.stitch),
-              }),
-          ...(isPhoto
-            ? {}
-            : {
-                is_aigc: this.assetBoolean(
-                  firstPost.settings.video_made_with_ai
-                ),
-              }),
-          brand_content_toggle: this.assetBoolean(
-            firstPost.settings.brand_content_toggle
-          ),
-          brand_organic_toggle: this.assetBoolean(
-            firstPost.settings.brand_organic_toggle
-          ),
-          ...(isPhoto
-            ? {
-                auto_add_music: firstPost.settings.autoAddMusic === 'yes',
-              }
-            : {}),
-          ...(!isPhoto && firstPost?.media?.[0]?.thumbnailTimestamp != null
-            ? {
-                video_cover_timestamp_ms:
-                  firstPost?.media?.[0]?.thumbnailTimestamp,
-              }
-            : {}),
-        },
-      };
-    }
-
-    return {
+  return {
       post_info: {
         ...(isPhoto && firstPost.settings.title
-          ? { title: firstPost.settings.title }
+          ? { title: firstPost.settings.title.slice(0, 90) }
           : {}),
-        ...(!isPhoto && firstPost.message ? { title: firstPost.message } : {}),
+        ...(!isPhoto && firstPost.message
+          ? { title: firstPost.message }
+          : {}),
         ...(isPhoto ? { description: firstPost.message } : {}),
+        privacy_level: this.requirePrivacyLevel(firstPost),
+        ...(isPhoto
+          ? {}
+          : { disable_duet: !this.assetBoolean(firstPost.settings.duet) }),
+        disable_comment: !this.assetBoolean(firstPost.settings.comment),
+        ...(isPhoto
+          ? {}
+          : {
+              disable_stitch: !this.assetBoolean(firstPost.settings.stitch),
+            }),
+        ...(isPhoto
+          ? {}
+          : {
+              is_aigc: this.assetBoolean(
+                firstPost.settings.video_made_with_ai
+              ),
+            }),
+        brand_content_toggle: this.assetBoolean(
+          firstPost.settings.brand_content_toggle
+        ),
+        brand_organic_toggle: this.assetBoolean(
+          firstPost.settings.brand_organic_toggle
+        ),
+        ...(isPhoto
+          ? {
+              auto_add_music: firstPost.settings.autoAddMusic === 'yes',
+            }
+          : {}),
+        ...(!isPhoto && firstPost?.media?.[0]?.thumbnailTimestamp != null
+          ? {
+              video_cover_timestamp_ms:
+                firstPost?.media?.[0]?.thumbnailTimestamp,
+            }
+          : {}),
       },
     };
   }
@@ -885,10 +884,7 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
     // path for photos, so this branch keeps pulling from the URL.
     if (isPhoto) {
       return {
-        post_mode:
-          this.contentPostingMethod(firstPost) === 'DIRECT_POST'
-            ? 'DIRECT_POST'
-            : 'MEDIA_UPLOAD',
+        post_mode: this.contentPostingMethod(firstPost),
         media_type: 'PHOTO',
         source_info: {
           source: 'PULL_FROM_URL',
@@ -931,10 +927,7 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
       data: { publish_id, upload_url },
     } = await (
       await this.fetch(
-        `https://open.tiktokapis.com/v2/post/publish${this.postingMethod(
-          this.contentPostingMethod(firstPost),
-          isPhoto
-        )}`,
+        `https://open.tiktokapis.com/v2/post/publish${this.postingMethod(isPhoto)}`,
         {
           method: 'POST',
           headers: {
@@ -1041,180 +1034,9 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
     );
   }
 
-  async analytics(
-    id: string,
-    accessToken: string,
-    date: number
-  ): Promise<AnalyticsData[]> {
-    const today = dayjs().format('YYYY-MM-DD');
-
-    try {
-      // Get user stats (follower_count, following_count, likes_count, video_count)
-      const userStatsResponse = await fetch(
-        'https://open.tiktokapis.com/v2/user/info/?fields=follower_count,following_count,likes_count,video_count',
-        {
-          method: 'GET',
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
-
-      const userStatsData = await userStatsResponse.json();
-      const userStats = userStatsData?.data?.user;
-
-      const result: AnalyticsData[] = [];
-
-      if (userStats) {
-        if (userStats.follower_count !== undefined) {
-          result.push({
-            label: 'Followers',
-            percentageChange: 0,
-            data: [{ total: String(userStats.follower_count), date: today }],
-          });
-        }
-
-        if (userStats.following_count !== undefined) {
-          result.push({
-            label: 'Following',
-            percentageChange: 0,
-            data: [{ total: String(userStats.following_count), date: today }],
-          });
-        }
-
-        if (userStats.likes_count !== undefined) {
-          result.push({
-            label: 'Total Likes',
-            percentageChange: 0,
-            data: [{ total: String(userStats.likes_count), date: today }],
-          });
-        }
-
-        if (userStats.video_count !== undefined) {
-          result.push({
-            label: 'Videos',
-            percentageChange: 0,
-            data: [{ total: String(userStats.video_count), date: today }],
-          });
-        }
-      }
-
-      // Get recent videos and aggregate their stats
-      const videoListResponse = await fetch(
-        'https://open.tiktokapis.com/v2/video/list/?fields=id',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify({ max_count: 20 }),
-        }
-      );
-
-      const videoListData = await videoListResponse.json();
-      const videos = videoListData?.data?.videos;
-
-      if (videos && videos.length > 0) {
-        const videoIds = videos.map((v: { id: string }) => v.id);
-
-        // Query video details to get engagement metrics
-        const videoQueryResponse = await fetch(
-          'https://open.tiktokapis.com/v2/video/query/?fields=id,like_count,comment_count,share_count,view_count',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${accessToken}`,
-            },
-            body: JSON.stringify({
-              filters: { video_ids: videoIds },
-            }),
-          }
-        );
-
-        const videoQueryData = await videoQueryResponse.json();
-        const videoDetails = videoQueryData?.data?.videos;
-
-        if (videoDetails && videoDetails.length > 0) {
-          let totalViews = 0;
-          let totalLikes = 0;
-          let totalComments = 0;
-          let totalShares = 0;
-
-          for (const video of videoDetails) {
-            totalViews += video.view_count || 0;
-            totalLikes += video.like_count || 0;
-            totalComments += video.comment_count || 0;
-            totalShares += video.share_count || 0;
-          }
-
-          result.push({
-            label: 'Views',
-            percentageChange: 0,
-            data: [{ total: String(totalViews), date: today }],
-          });
-
-          result.push({
-            label: 'Recent Likes',
-            percentageChange: 0,
-            data: [{ total: String(totalLikes), date: today }],
-          });
-
-          result.push({
-            label: 'Recent Comments',
-            percentageChange: 0,
-            data: [{ total: String(totalComments), date: today }],
-          });
-
-          result.push({
-            label: 'Recent Shares',
-            percentageChange: 0,
-            data: [{ total: String(totalShares), date: today }],
-          });
-        }
-      }
-
-      return result;
-    } catch (err) {
-      console.error('Error fetching TikTok analytics:', err);
-      return [];
-    }
-  }
-
-  async missing(
-    id: string,
-    accessToken: string
-  ): Promise<{ id: string; url: string }[]> {
-    try {
-      const videoListResponse = await this.fetch(
-        'https://open.tiktokapis.com/v2/video/list/?fields=id,cover_image_url,title',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify({ max_count: 20 }),
-        }
-      );
-
-      const videoListData = await videoListResponse.json();
-      const videos = videoListData?.data?.videos;
-
-      if (!videos || videos.length === 0) {
-        return [];
-      }
-
-      return videos.map((v: { id: string; cover_image_url: string }) => ({
-        id: String(v.id),
-        url: v.cover_image_url,
-      }));
-    } catch (err) {
-      console.error('Error fetching TikTok missing content:', err);
-      return [];
-    }
-  }
+  // Kaido: analytics, postAnalytics, missing and releaseUrl are not
+  // implemented - they need user.info.stats / video.list, which this app does
+  // not request (see scopes). Postiz hides them for providers without them.
 
   // Posts published before moderation finished keep their publish_id
   // (v_pub_file~... / p_pub_url~...) as releaseId - resolve it to the post id
@@ -1273,104 +1095,5 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
       postId: publicPostId,
       releaseURL: this.postUrl(integration, publishId, publicPostId),
     };
-  }
-
-  async releaseUrl(accessToken: string, releaseId: string) {
-    const data = await (
-      await this.fetch(
-        'https://open.tiktokapis.com/v2/video/query/?fields=id,share_url',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify({
-            filters: {
-              video_ids: [releaseId],
-            },
-          }),
-        }
-      )
-    ).json();
-
-    // share_url carries tracking params (the app's client key among them)
-    return data?.data?.videos?.[0]?.share_url?.split('?')[0] as
-      | string
-      | undefined;
-  }
-
-  async postAnalytics(
-    integrationId: string,
-    accessToken: string,
-    postId: string,
-    fromDate: number
-  ): Promise<AnalyticsData[]> {
-    const today = dayjs().format('YYYY-MM-DD');
-
-    try {
-      // Query video details using the video ID
-      const response = await fetch(
-        'https://open.tiktokapis.com/v2/video/query/?fields=id,like_count,comment_count,share_count,view_count',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify({
-            filters: {
-              video_ids: [postId],
-            },
-          }),
-        }
-      );
-
-      const data = await response.json();
-      const video = data?.data?.videos?.[0];
-
-      if (!video) {
-        return [];
-      }
-
-      const result: AnalyticsData[] = [];
-
-      if (video.view_count !== undefined) {
-        result.push({
-          label: 'Views',
-          percentageChange: 0,
-          data: [{ total: String(video.view_count), date: today }],
-        });
-      }
-
-      if (video.like_count !== undefined) {
-        result.push({
-          label: 'Likes',
-          percentageChange: 0,
-          data: [{ total: String(video.like_count), date: today }],
-        });
-      }
-
-      if (video.comment_count !== undefined) {
-        result.push({
-          label: 'Comments',
-          percentageChange: 0,
-          data: [{ total: String(video.comment_count), date: today }],
-        });
-      }
-
-      if (video.share_count !== undefined) {
-        result.push({
-          label: 'Shares',
-          percentageChange: 0,
-          data: [{ total: String(video.share_count), date: today }],
-        });
-      }
-
-      return result;
-    } catch (err) {
-      console.error('Error fetching TikTok post analytics:', err);
-      return [];
-    }
   }
 }
