@@ -77,16 +77,21 @@ export class TikTokDto {
   })
   title: string;
 
-  @IsIn([
-    'PUBLIC_TO_EVERYONE',
-    'MUTUAL_FOLLOW_FRIENDS',
-    'FOLLOWER_OF_CREATOR',
-    'SELF_ONLY',
-  ])
-  @IsString()
+  // Kaido (guideline 2b): no default anywhere - an empty value is rejected in
+  // the editor and in the Public API alike.
+  @IsIn(
+    [
+      'PUBLIC_TO_EVERYONE',
+      'MUTUAL_FOLLOW_FRIENDS',
+      'FOLLOWER_OF_CREATOR',
+      'SELF_ONLY',
+    ],
+    { message: 'Choose who can see this video' }
+  )
+  @IsString({ message: 'Choose who can see this video' })
   @JSONSchema({
     description:
-      'Applied only when content_posting_method=DIRECT_POST. Ignored by TikTok on UPLOAD.',
+      'Required, no default: the user must choose it explicitly (TikTok Content Sharing Guidelines 2b). Must be one of the privacy_level_options of the creator. Applied only when content_posting_method=DIRECT_POST.',
   })
   privacy_level:
     | 'PUBLIC_TO_EVERYONE'

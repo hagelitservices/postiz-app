@@ -607,6 +607,23 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
     }
   }
 
+  // Kaido (TikTok Content Sharing Guideline 2b): the visibility is always the
+  // user's explicit choice. Upstream fell back to PUBLIC_TO_EVERYONE when it
+  // was missing, which would publish a post publicly nobody chose to make
+  // public. A missing value is a hard, non-retryable error instead.
+  private requirePrivacyLevel(firstPost: PostDetails<TikTokDto>) {
+    const level = firstPost.settings?.privacy_level;
+    if (!level) {
+      throw new BadBody(
+        'tiktok',
+        '{}',
+        '{}',
+        'TikTok privacy_level is missing: choose who can see this post before publishing'
+      );
+    }
+    return level;
+  }
+
   private buildTikokPostInfoBody(firstPost: PostDetails<TikTokDto>) {
     const isPhoto = !hasExtension(firstPost?.media?.[0]?.path, 'mp4');
     const method = this.contentPostingMethod(firstPost);
@@ -621,8 +638,7 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
             ? { title: firstPost.message }
             : {}),
           ...(isPhoto ? { description: firstPost.message } : {}),
-          privacy_level:
-            firstPost.settings.privacy_level || 'PUBLIC_TO_EVERYONE',
+          privacy_level: this.requirePrivacyLevel(firstPost),
           ...(isPhoto
             ? {}
             : { disable_duet: !this.assetBoolean(firstPost.settings.duet) }),
