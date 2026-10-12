@@ -4,6 +4,13 @@
   "tiktok_loading_account": "TikTok-Konto wird geladen …",
   "tiktok_account_info_unavailable": "Dieses TikTok-Konto konnte nicht geladen werden. Bitte später erneut versuchen.",
   "tiktok_creator_cannot_post": "Dieses TikTok-Konto kann gerade nicht posten. Bitte später erneut versuchen.",
+  "tiktok_disclose_choose_one": "Gib an, ob dein Inhalt für dich selbst, für Dritte oder für beides wirbt.",
+  "tiktok_video_too_long": "Dieses Video ist {{duration}} s lang. Dieses TikTok-Konto kann Videos bis {{max}} s posten.",
+  "tiktok_photo_labeled_paid_partnership": "Dein Foto wird als „Bezahlte Partnerschaft“ gekennzeichnet.",
+  "tiktok_video_labeled_paid_partnership": "Dein Video wird als „Bezahlte Partnerschaft“ gekennzeichnet.",
+  "tiktok_photo_labeled_promotional": "Dein Foto wird als „Werbeinhalt“ gekennzeichnet.",
+  "tiktok_video_labeled_promotional": "Dein Video wird als „Werbeinhalt“ gekennzeichnet.",
+  "tiktok_processing_notice": "Es kann einige Minuten dauern, bis dein Inhalt verarbeitet ist und auf deinem Profil erscheint.",
   "tiktok_posting_to_account": "Posten auf das TikTok-Konto:",
   "tiktok_max_video_duration": "Maximale Videolänge für dieses Konto:"
 }

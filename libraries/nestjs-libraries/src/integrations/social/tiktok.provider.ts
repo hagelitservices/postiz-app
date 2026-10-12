@@ -906,6 +906,130 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
     };
   }
 
+  private rejectPost(reason: string): never {
+    throw new BadBody('tiktok', '{}', '{}', reason);
+  }
+
+  // Kaido (TikTok Content Sharing Guidelines 1b, 1c, 3a, 3b): the same rules
+  // the composer enforces, checked again right before anything is sent to
+  // TikTok - for posts scheduled long ago and for the Public API alike.
+  private async checkBeforePublish(
+    accessToken: string,
+    firstPost: PostDetails<TikTokDto>,
+    isPhoto: boolean,
+    videoPath: string,
+    videoSize?: number
+  ) {
+    const settings: any = firstPost?.settings || {};
+    if (
+      settings.disclose === true &&
+      !this.assetBoolean(settings.brand_organic_toggle) &&
+      !this.assetBoolean(settings.brand_content_toggle)
+    ) {
+      this.rejectPost(
+        'You need to indicate if your content promotes yourself, a third party, or both.'
+      );
+    }
+    if (
+      this.assetBoolean(settings.brand_content_toggle) &&
+      settings.privacy_level === 'SELF_ONLY'
+    ) {
+      this.rejectPost('Branded content visibility cannot be set to private.');
+    }
+
+    const creator: any = await this.creatorInfo(accessToken);
+    if (!creator?.canPost) {
+      this.rejectPost(
+        `This TikTok account cannot post right now${
+          creator?.reason ? ` (${creator.reason})` : ''
+        }. Please try again later.`
+      );
+    }
+    const options: string[] = creator.privacyLevelOptions || [];
+    if (
+      options.length &&
+      settings.privacy_level &&
+      !options.includes(settings.privacy_level)
+    ) {
+      this.rejectPost(
+        `This TikTok account does not offer the visibility ${settings.privacy_level} (available: ${options.join(', ')})`
+      );
+    }
+
+    const max = Number(creator.maxVideoPostDurationSec) || 0;
+    if (!isPhoto && max && videoSize) {
+      const duration = await this.videoDurationSec(videoPath, videoSize);
+      if (duration !== undefined && duration > max) {
+        this.rejectPost(
+          `This video is ${Math.ceil(duration)}s long. This TikTok account can post videos up to ${max}s.`
+        );
+      }
+    }
+  }
+
+  private async readMediaRange(path: string, start: number, end: number) {
+    const stream: any = await this.tiktokChunkStream(path, start, end);
+    const chunks: Buffer[] = [];
+    for await (const chunk of stream) {
+      chunks.push(Buffer.from(chunk));
+    }
+    return Buffer.concat(chunks);
+  }
+
+  // Reads the duration from the MP4 movie header (moov/mvhd) with a few small
+  // ranged reads, walking the top-level boxes - no ffmpeg, no full download.
+  // undefined when the file can't be read or parsed: TikTok still rejects an
+  // overlong video itself (duration_check_failed).
+  async videoDurationSec(
+    path: string,
+    size: number
+  ): Promise<number | undefined> {
+    try {
+      let offset = 0;
+      for (let i = 0; i < 64 && offset + 8 <= size; i++) {
+        const head = await this.readMediaRange(
+          path,
+          offset,
+          Math.min(offset + 15, size - 1)
+        );
+        let boxSize = head.readUInt32BE(0);
+        const type = head.toString('latin1', 4, 8);
+        let headerSize = 8;
+        if (boxSize === 1) {
+          boxSize = Number(head.readBigUInt64BE(8));
+          headerSize = 16;
+        } else if (boxSize === 0) {
+          boxSize = size - offset;
+        }
+        if (boxSize < headerSize) {
+          return undefined;
+        }
+        if (type === 'moov') {
+          const body = await this.readMediaRange(
+            path,
+            offset + headerSize,
+            Math.min(offset + boxSize - 1, offset + headerSize + 4095)
+          );
+          const at = body.indexOf('mvhd', 0, 'latin1');
+          if (at < 4) {
+            return undefined;
+          }
+          const p = at + 4;
+          const v1 = body[p] === 1;
+          const timescale = body.readUInt32BE(p + (v1 ? 20 : 12));
+          const duration = v1
+            ? Number(body.readBigUInt64BE(p + 24))
+            : body.readUInt32BE(p + 16);
+          return timescale ? duration / timescale : undefined;
+        }
+        offset += boxSize;
+      }
+    } catch (err) {
+      return undefined;
+    }
+    return undefined;
+  }
+
   async postPending(
     id: string,
     accessToken: string,
@@ -922,6 +1046,14 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
     const videoSize = isPhoto
       ? undefined
       : await this.mediaSize(videoPath, 'tiktok-error-upload');
+
+    await this.checkBeforePublish(
+      accessToken,
+      firstPost,
+      isPhoto,
+      videoPath,
+      videoSize
+    );
 
     const {
       data: { publish_id, upload_url },

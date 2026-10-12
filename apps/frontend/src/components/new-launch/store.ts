@@ -45,6 +45,11 @@ interface StoreState {
   locked: boolean;
   hide: boolean;
   setLocked: (locked: boolean) => void;
+  // Kaido: a channel's settings can hold back publishing (TikTok Content
+  // Sharing Guidelines 1b, 1c, 3a) - integration id -> reason shown on the
+  // disabled schedule / post buttons.
+  postBlockers: Record<string, string>;
+  setPostBlocker: (integrationId: string, reason?: string) => void;
   integrations: Integrations[];
   selectedIntegrations: SelectedIntegrations[];
   global: Values[];
@@ -157,6 +162,7 @@ const initialState = {
   current: 'global',
   locked: false,
   hide: false,
+  postBlockers: {} as Record<string, string>,
   integrations: [] as Integrations[],
   selectedIntegrations: [] as SelectedIntegrations[],
   global: [] as Values[],
@@ -533,6 +539,19 @@ export const useLaunchStore = create<StoreState>()((set) => ({
     set((state) => ({
       locked: locked,
     })),
+  setPostBlocker: (integrationId: string, reason?: string) =>
+    set((state) => {
+      if ((state.postBlockers[integrationId] || undefined) === reason) {
+        return state;
+      }
+      const postBlockers = { ...state.postBlockers };
+      if (reason) {
+        postBlockers[integrationId] = reason;
+      } else {
+        delete postBlockers[integrationId];
+      }
+      return { postBlockers };
+    }),
   setHide: (hide: boolean) =>
     set((state) => ({
       hide: hide,
