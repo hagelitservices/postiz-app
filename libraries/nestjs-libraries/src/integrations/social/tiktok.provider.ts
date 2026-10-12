@@ -438,6 +438,54 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
     };
   }
 
+  // Kaido (TikTok Content Sharing Guidelines 1a-1c, 2b, 2c): the composer loads
+  // creator_info every time it opens and renders the nickname, the privacy
+  // options, the disabled interactions and the duration limit from it. Goes
+  // through this.fetch so an expired token triggers the refresh cycle in
+  // IntegrationsController.functionIntegration. A creator who cannot post right
+  // now comes back as canPost: false instead of an exception, so the composer
+  // can stop the attempt and say why (guideline 1b).
+  async creatorInfo(accessToken: string) {
+    let body: any;
+    try {
+      body = await (
+        await this.fetch(
+          'https://open.tiktokapis.com/v2/post/publish/creator_info/query/',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json; charset=UTF-8',
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        )
+      ).json();
+    } catch (err) {
+      if (err instanceof BadBody) {
+        return { canPost: false, reason: err.message || 'creator_info failed' };
+      }
+      throw err;
+    }
+
+    const code = body?.error?.code;
+    if (code && code !== 'ok') {
+      return { canPost: false, reason: body?.error?.message || code };
+    }
+
+    const data = body?.data || {};
+    return {
+      canPost: true,
+      nickname: data.creator_nickname as string,
+      username: data.creator_username as string,
+      avatar: data.creator_avatar_url as string,
+      privacyLevelOptions: (data.privacy_level_options || []) as string[],
+      commentDisabled: !!data.comment_disabled,
+      duetDisabled: !!data.duet_disabled,
+      stitchDisabled: !!data.stitch_disabled,
+      maxVideoPostDurationSec: data.max_video_post_duration_sec as number,
+    };
+  }
+
   // Single status check for a publish_id, no loops and no timers: `post` returns
   // a `pending` PostResponse right after the upload, and the post workflow polls
   // this method with durable timers, so a stuck/retried check can never re-run

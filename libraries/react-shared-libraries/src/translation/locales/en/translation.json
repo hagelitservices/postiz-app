@@ -455,7 +455,7 @@
   "public_to_everyone": "Public to everyone",
   "mutual_follow_friends": "Mutual follow friends",
   "follower_of_creator": "Follower of creator",
-  "self_only": "Self only",
+  "self_only": "Only me",
   "post_content_directly_to_tiktok": "Post content directly to TikTok",
   "upload_content_to_tiktok_without_posting": "Upload content to TikTok without posting it",
   "choose_upload_without_posting_description": "Choose upload without posting if you want to review and edit your content within TikTok's app before publishing. This gives you access to TikTok's built-in editing tools and lets you make final adjustments before posting. The additional settings are only available when posting directly to TikTok.",
@@ -872,5 +872,12 @@
   "post_now_all_channels": "Post all channels now",
   "schedule_post_in_all_channels_question": "This post was created for more than one channel. Do you want to schedule all of them?",
   "schedule_all_channels": "Schedule all channels",
-  "only_channel": "Only"
+  "only_channel": "Only",
+  "tiktok_disabled_in_creator_settings": "Turned off in this account's TikTok settings",
+  "branded_content_visibility_cannot_be_private": "Branded content visibility cannot be set to private.",
+  "tiktok_loading_account": "Loading TikTok account…",
+  "tiktok_account_info_unavailable": "Could not load this TikTok account. Please try again later.",
+  "tiktok_creator_cannot_post": "This TikTok account cannot post right now. Please try again later.",
+  "tiktok_posting_to_account": "Posting to TikTok account:",
+  "tiktok_max_video_duration": "Maximum video length for this account:"
 }
