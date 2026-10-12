@@ -78,12 +78,22 @@ const TikTokSettings: FC<{
   const brand_content_toggle = watch('brand_content_toggle');
   const privacy_level = watch('privacy_level');
   const content_posting_method = watch('content_posting_method');
-  const isUploadMode = content_posting_method === 'UPLOAD';
+  // Kaido (TikTok app review): the "tiktok" provider posts directly only - the
+  // inbox upload needs the video.upload scope this app does not request. The
+  // choice stays for TikTok Business, which shares this component.
+  const isUploadMode = isBusiness && content_posting_method === 'UPLOAD';
   const isSelfOnly = privacy_level === 'SELF_ONLY';
 
   const commentDisabled = !!creator?.commentDisabled;
   const duetDisabled = !!creator?.duetDisabled;
   const stitchDisabled = !!creator?.stitchDisabled;
+
+  // A draft saved before Direct Post became fixed may still carry UPLOAD.
+  useEffect(() => {
+    if (!isBusiness && content_posting_method !== 'DIRECT_POST') {
+      setValue('content_posting_method', 'DIRECT_POST');
+    }
+  }, [isBusiness, content_posting_method, setValue]);
 
   // Guideline 3b: branded content cannot be private. If the visibility turns
   // into "Only me" while branded content is on, clear it instead of letting an
@@ -286,26 +296,37 @@ const TikTokSettings: FC<{
           </div>
         )}
       </div>
-      <div className="text-[14px] mt-[10px] mb-[18px] text-balance">
-        {t(
-          'choose_upload_without_posting_description',
-          `Choose upload without posting if you want to review and edit your content within TikTok's app before publishing.
+      {isBusiness ? (
+        <>
+          <div className="text-[14px] mt-[10px] mb-[18px] text-balance">
+            {t(
+              'choose_upload_without_posting_description',
+              `Choose upload without posting if you want to review and edit your content within TikTok's app before publishing.
         This gives you access to TikTok's built-in editing tools and lets you make final adjustments before posting. The additional settings are only available when posting directly to TikTok.`
-        )}
-      </div>
-      <Select
-        label={t('label_content_posting_method', 'Content posting method')}
-        {...register('content_posting_method', {
-          value: 'DIRECT_POST',
-        })}
-      >
-        <option value="">{t('select', 'Select')}</option>
-        {contentPostingMethod.map((item) => (
-          <option key={item.value} value={item.value}>
-            {item.label}
-          </option>
-        ))}
-      </Select>
+            )}
+          </div>
+          <Select
+            label={t('label_content_posting_method', 'Content posting method')}
+            {...register('content_posting_method', {
+              value: 'DIRECT_POST',
+            })}
+          >
+            <option value="">{t('select', 'Select')}</option>
+            {contentPostingMethod.map((item) => (
+              <option key={item.value} value={item.value}>
+                {item.label}
+              </option>
+            ))}
+          </Select>
+        </>
+      ) : (
+        <input
+          type="hidden"
+          {...register('content_posting_method', {
+            value: 'DIRECT_POST',
+          })}
+        />
+      )}
       {isUploadMode && <div className="-mt-[23px] mb-[23px] text-red-600">After posting you fill find a notification inside your Inbox about your post (not content studio)</div>}
       <div className={clsx('flex flex-col', directPostOnly)}>
         <Select

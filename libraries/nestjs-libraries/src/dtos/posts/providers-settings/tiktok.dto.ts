@@ -177,7 +177,8 @@ export class TikTokDto {
       '"UPLOAD" does NOT publish: it only sends the media to the user\'s TikTok app inbox, ' +
       'where they must manually finish and publish it within 24 hours or it is discarded, ' +
       'and it makes TikTok ignore every other setting here. ' +
-      'Only use "UPLOAD" when the user explicitly asks to review or edit the post inside the TikTok app before publishing.',
+      'Only use "UPLOAD" when the user explicitly asks to review or edit the post inside the TikTok app before publishing. ' +
+      'The "tiktok" provider of this instance accepts only "DIRECT_POST" and rejects "UPLOAD"; "UPLOAD" applies to TikTok Business only.',
   })
   content_posting_method: 'DIRECT_POST' | 'UPLOAD';
 }
