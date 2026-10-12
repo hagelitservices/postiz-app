@@ -9,8 +9,16 @@ i18next
   .use(initReactI18next)
   .use(LanguageDetector)
   .use(
-    resourcesToBackend((language: any, namespace: any) => {
-      return import(`./locales/${language}/${namespace}.json`);
+    resourcesToBackend(async (language: any, namespace: any) => {
+      const base = await import(`./locales/${language}/${namespace}.json`);
+      // Kaido: our texts live in locales-kaido/<lang>.json and are laid over
+      // the upstream file, so translation.json stays untouched and the weekly
+      // rebase onto a new Postiz release never conflicts there.
+      const kaido =
+        namespace === defaultNS
+          ? await import(`./locales-kaido/${language}.json`).catch(() => ({}))
+          : {};
+      return { ...(base.default ?? base), ...(kaido.default ?? kaido) };
     })
   )
   .init({
