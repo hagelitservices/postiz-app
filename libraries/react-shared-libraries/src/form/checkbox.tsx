@@ -1,16 +1,22 @@
 'use client';
 
-import { FC, forwardRef, useCallback, useState } from 'react';
+import { forwardRef, KeyboardEvent, useCallback, useId } from 'react';
 import clsx from 'clsx';
-import { useFormContext, useWatch } from 'react-hook-form';
+import { useFormContext } from 'react-hook-form';
 export const Checkbox = forwardRef<
   null,
   {
     checked?: boolean;
     disableForm?: boolean;
+    // Kaido (TikTok guideline 2c/3b): disabled used to be ignored, so every
+    // "greyed out" checkbox was still clickable. It now blocks mouse and
+    // keyboard and is announced as aria-disabled.
+    disabled?: boolean;
     name?: string;
     className?: string;
     label?: string;
+    // Shown as a native tooltip, e.g. why the checkbox is disabled.
+    title?: string;
     onChange?: (event: {
       target: {
         name?: string;
@@ -20,13 +26,18 @@ export const Checkbox = forwardRef<
     variant?: 'default' | 'hollow';
   }
 >((props, ref: any) => {
-  const { checked, className, label, disableForm, variant } = props;
+  const { checked, className, label, disableForm, variant, disabled, title } =
+    props;
+  const labelId = useId();
   const form = useFormContext();
   const register = disableForm ? {} : form.register(props.name!);
   const watch = disableForm ? false : form.watch(props.name!);
-  const val = watch || checked;
+  const val = !!(watch || checked);
 
   const changeStatus = useCallback(() => {
+    if (disabled) {
+      return;
+    }
     props?.onChange?.({
       target: {
         name: props.name!,
@@ -42,15 +53,37 @@ export const Checkbox = forwardRef<
         },
       });
     }
-  }, [val]);
+  }, [val, disabled]);
+
+  const onKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        changeStatus();
+      }
+    },
+    [changeStatus]
+  );
+
   return (
-    <div className="flex gap-[10px]">
+    <div
+      className={clsx('flex gap-[10px] items-center', disabled && 'opacity-50')}
+      title={title}
+    >
       <div
         ref={ref}
-        {...disableForm ? {} : form.register(props.name!)}
+        {...(disableForm ? {} : form.register(props.name!))}
+        role="checkbox"
+        aria-checked={val}
+        aria-disabled={disabled || undefined}
+        aria-labelledby={label ? labelId : undefined}
+        tabIndex={0}
         onClick={changeStatus}
+        onKeyDown={onKeyDown}
         className={clsx(
-          'cursor-pointer rounded-[4px] select-none w-[24px] h-[24px] justify-center items-center flex text-white',
+          'shrink-0 rounded-[4px] select-none w-[24px] h-[24px] justify-center items-center flex text-white',
+          'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#B69DEC]',
+          disabled ? 'cursor-not-allowed' : 'cursor-pointer',
           variant === 'default' || !variant
             ? 'bg-forth'
             : 'border-customColor1 border-2 bg-customColor2',
@@ -69,13 +102,25 @@ export const Checkbox = forwardRef<
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              aria-hidden="true"
             >
               <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
           </div>
         )}
       </div>
-      {!!label && <div>{label}</div>}
+      {!!label && (
+        <div
+          id={labelId}
+          onClick={changeStatus}
+          className={clsx(
+            'select-none',
+            disabled ? 'cursor-not-allowed' : 'cursor-pointer'
+          )}
+        >
+          {label}
+        </div>
+      )}
     </div>
   );
 });
