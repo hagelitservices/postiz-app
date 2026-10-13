@@ -15,5 +15,6 @@
   "tiktok_processing_notice": "Your content may take a few minutes to process and appear on your profile.",
   "tiktok_posting_to_account": "Posting to TikTok account:",
   "tiktok_max_video_duration": "Maximum video length for this account:",
-  "source_code_agpl": "Source code (AGPL-3.0)"
+  "source_code_agpl": "Source code (AGPL-3.0)",
+  "tiktok_restriction_direct_video": "TikTok restriction: For direct post with video, your post content is used as the title. A separate title field is not available."
 }

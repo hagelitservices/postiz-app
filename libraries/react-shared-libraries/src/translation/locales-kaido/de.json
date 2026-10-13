@@ -13,5 +13,12 @@
   "tiktok_processing_notice": "Es kann einige Minuten dauern, bis dein Inhalt verarbeitet ist und auf deinem Profil erscheint.",
   "tiktok_posting_to_account": "Posten auf das TikTok-Konto:",
   "tiktok_max_video_duration": "Maximale Videolänge für dieses Konto:",
-  "source_code_agpl": "Quelltext (AGPL-3.0)"
+  "source_code_agpl": "Quelltext (AGPL-3.0)",
+  "tiktok_restriction_direct_video": "TikTok-Vorgabe: Bei Direct Post mit Video wird dein Text als Titel verwendet. Ein eigenes Titelfeld gibt es nicht.",
+  "by_posting_you_agree_to_tiktoks": "Mit dem Posten stimmst du den TikTok-Bedingungen zu",
+  "this_cannot_be_changed_once_posted": "Das lässt sich nicht mehr ändern, sobald dein Video gepostet ist.",
+  "this_feature_available_only_for_photos": "Diese Funktion gibt es nur für Fotos: Es wird eine Standardmusik hinzugefügt, die du später ändern kannst.",
+  "turn_on_to_disclose_video_promotes": "Schalte das ein, um offenzulegen, dass dieses Video Waren oder Dienstleistungen gegen eine Gegenleistung bewirbt. Dein Video kann dich selbst, eine dritte Partei oder beides bewerben.",
+  "you_are_promoting_another_brand": "Du bewirbst eine andere Marke oder eine dritte Partei.",
+  "you_are_promoting_yourself": "Du bewirbst dich selbst oder deine eigene Marke."
 }

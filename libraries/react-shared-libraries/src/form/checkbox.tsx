@@ -86,6 +86,10 @@ export const Checkbox = forwardRef<
           disabled ? 'cursor-not-allowed' : 'cursor-pointer',
           variant === 'default' || !variant
             ? 'bg-forth'
+            : val
+            ? // Kaido: the white tick used to sit on the light surface of the
+              // hollow variant and was invisible in the light theme.
+              'border-[#612BD3] border-2 bg-[#612BD3]'
             : 'border-customColor1 border-2 bg-customColor2',
           className
         )}
