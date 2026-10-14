@@ -874,6 +874,36 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
     }
   }
 
+  // Kaido (TikTok Content Sharing Guidelines, Technical Considerations 2):
+  // "If video resources are already on API Clients' servers, do not use
+  // FILE_UPLOAD; use PULL_FROM_URL instead." and "The supplied URL must be
+  // under the path of a domain or URL prefix API Clients have ownership on."
+  // Media of local storage is served under every address of this instance
+  // (older rows still carry a previous host), so it is moved to FRONTEND_URL.
+  // TIKTOK_PULL_URL_PREFIX names the prefix verified in the TikTok app; a URL
+  // outside of it falls back to FILE_UPLOAD like upstream.
+  private tiktokMediaUrl(path: string) {
+    if (
+      path?.indexOf('http') !== 0 ||
+      process.env.STORAGE_PROVIDER !== 'local' ||
+      !process.env.FRONTEND_URL
+    ) {
+      return path;
+    }
+    const url = new URL(path);
+    const uploads = `${process.env.NEXT_PUBLIC_UPLOAD_DIRECTORY || '/uploads'}/`;
+    if (url.pathname.indexOf(uploads) !== 0) {
+      return path;
+    }
+    return new URL(url.pathname, process.env.FRONTEND_URL).toString();
+  }
+
+  private tiktokPullUrl(path: string) {
+    const prefix = process.env.TIKTOK_PULL_URL_PREFIX;
+    const url = this.tiktokMediaUrl(path);
+    return prefix && url?.indexOf(prefix) === 0 ? url : undefined;
+  }
+
   private buildTikokSourceInfoBody(
     firstPost: PostDetails<TikTokDto>,
     videoSize?: number
@@ -889,7 +919,25 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
         source_info: {
           source: 'PULL_FROM_URL',
           photo_cover_index: 0,
-          photo_images: firstPost.media?.map((p) => p.path),
+          photo_images: firstPost.media?.map((p) =>
+            this.tiktokMediaUrl(p.path)
+          ),
+        },
+      };
+    }
+
+    const videoUrl = this.tiktokPullUrl(firstPost?.media?.[0]?.path!);
+    if (videoUrl) {
+      return {
+        source_info: {
+          source: 'PULL_FROM_URL',
+          video_url: videoUrl,
+          ...(firstPost?.media?.[0]?.thumbnailTimestamp!
+            ? {
+                video_cover_timestamp_ms:
+                  firstPost?.media?.[0]?.thumbnailTimestamp!,
+              }
+            : {}),
         },
       };
     }
@@ -1074,7 +1122,8 @@ export class TiktokProvider extends SocialAbstract implements SocialProvider {
       )
     ).json();
 
-    // Videos: stream the bytes to the upload_url returned by the init call.
+    // Videos sent as FILE_UPLOAD: stream the bytes to the upload_url returned
+    // by the init call (PULL_FROM_URL returns none, TikTok fetches the file).
     if (!isPhoto && upload_url && videoSize) {
       try {
         await this.uploadTikTokVideoBytes(

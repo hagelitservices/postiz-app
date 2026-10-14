@@ -14,7 +14,7 @@
   "tiktok_posting_to_account": "Posten auf das TikTok-Konto:",
   "tiktok_max_video_duration": "Maximale Videolänge für dieses Konto:",
   "source_code_agpl": "Quelltext (AGPL-3.0)",
-  "tiktok_restriction_direct_video": "TikTok-Vorgabe: Bei Direct Post mit Video wird dein Text als Titel verwendet. Ein eigenes Titelfeld gibt es nicht.",
+  "tiktok_restriction_direct_video": "Dein Text wird als TikTok-Titel verwendet. Du kannst ihn vor dem Posten frei bearbeiten.",
   "by_posting_you_agree_to_tiktoks": "Mit dem Posten stimmst du TikToks",
   "this_cannot_be_changed_once_posted": "Das lässt sich nicht mehr ändern, sobald dein Video gepostet ist.",
   "this_feature_available_only_for_photos": "Diese Funktion gibt es nur für Fotos: Es wird eine Standardmusik hinzugefügt, die du später ändern kannst.",
@@ -28,5 +28,7 @@
   "this_photo_will_be_classified_branded_content": "Dieses Foto wird als Markeninhalt eingestuft.",
   "label_who_can_see_this_photo": "Wer kann dieses Foto sehen?",
   "by_posting_you_agree_end": " zu.",
-  "analytics": "Statistiken"
+  "analytics": "Statistiken",
+  "tiktok_choose_visibility_video": "Wähle, wer dieses Video sehen kann.",
+  "tiktok_choose_visibility_photo": "Wähle, wer dieses Foto sehen kann."
 }

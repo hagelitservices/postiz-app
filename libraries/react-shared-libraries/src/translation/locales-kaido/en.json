@@ -16,12 +16,14 @@
   "tiktok_posting_to_account": "Posting to TikTok account:",
   "tiktok_max_video_duration": "Maximum video length for this account:",
   "source_code_agpl": "Source code (AGPL-3.0)",
-  "tiktok_restriction_direct_video": "TikTok restriction: For direct post with video, your post content is used as the title. A separate title field is not available.",
+  "tiktok_restriction_direct_video": "Your post text is used as the TikTok title. You can edit it freely before posting.",
   "label_disclose_photo_content": "Disclose Photo Content",
   "this_cannot_be_changed_once_photo_posted": "This cannot be changed once your photo is posted.",
   "turn_on_to_disclose_photo_promotes": "Turn on to disclose that this photo promotes goods or services in exchange for something of value. Your photo could promote yourself, a third party, or both.",
   "this_photo_will_be_classified_brand_organic": "This photo will be classified as Brand Organic.",
   "this_photo_will_be_classified_branded_content": "This photo will be classified as Branded Content.",
   "label_who_can_see_this_photo": "Who can see this photo?",
-  "by_posting_you_agree_end": "."
+  "by_posting_you_agree_end": ".",
+  "tiktok_choose_visibility_video": "Choose who can see this video.",
+  "tiktok_choose_visibility_photo": "Choose who can see this photo."
 }

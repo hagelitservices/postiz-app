@@ -174,7 +174,7 @@ const TikTokSettings: FC<{
       )
     : '';
 
-  // Guidelines 1b, 1c, 3a: while one of these holds, the schedule and post
+  // Guidelines 1b, 1c, 2b, 3a: while one of these holds, the schedule and post
   // buttons stay disabled and show the reason on hover (drafts still save).
   const setPostBlocker = useLaunchStore((state) => state.setPostBlocker);
   const blocker = discloseIncomplete
@@ -193,7 +193,14 @@ const TikTokSettings: FC<{
         'tiktok_creator_cannot_post',
         'This TikTok account cannot post right now. Please try again later.'
       )
-    : tooLongText;
+    : tooLongText ||
+      // Guideline 2b: no default visibility, so nothing goes out before the
+      // creator picks one (the DTO rejects it too, this says why up front)
+      (!privacy_level
+        ? isPhoto
+          ? t('tiktok_choose_visibility_photo', 'Choose who can see this photo.')
+          : t('tiktok_choose_visibility_video', 'Choose who can see this video.')
+        : '');
   useEffect(() => {
     if (!integration?.id) return;
     setPostBlocker(integration.id, blocker || undefined);
@@ -225,7 +232,7 @@ const TikTokSettings: FC<{
     if (!isUploadMode) {
       return t(
         'tiktok_restriction_direct_video',
-        'TikTok restriction: For direct post with video, your post content is used as the title. A separate title field is not available.'
+        'Your post text is used as the TikTok title. You can edit it freely before posting.'
       );
     }
     return t(
