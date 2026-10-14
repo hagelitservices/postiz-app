@@ -428,6 +428,9 @@ const TikTokSettings: FC<{
       )}
       {isUploadMode && <div className="-mt-[23px] mb-[23px] text-red-600">After posting you fill find a notification inside your Inbox about your post (not content studio)</div>}
       <div className={clsx('flex flex-col', directPostOnly)}>
+        {/* Kaido (C26): auto/random music only exists for photo posts, so a
+            video post does not show it. It stays registered (TikTokDto). */}
+        <div className={clsx(isVideo && 'hidden')}>
         <Select
           label={
             isBusiness
@@ -457,6 +460,7 @@ const TikTokSettings: FC<{
                 'This feature available only for photos, it will add a default music that\n        you can change later.'
               )}
         </div>
+        </div>
         {isBusiness && (
           <div className="flex flex-col gap-[18px] mb-[24px]">
             {/* Random music replaces a manual choice for photos, so the
@@ -480,6 +484,9 @@ const TikTokSettings: FC<{
             />
           </div>
         )}
+        {/* Kaido (C26): a photo post has none of these, so the heading and
+            its divider go too instead of leaving an empty section. */}
+        <div className={clsx(isPhoto && 'hidden')}>
         <hr className="mb-[15px] border-tableBorder" />
         <div className="text-[14px] mb-[10px]">
           {t('tiktok_video_features', 'Video features')}
@@ -520,6 +527,7 @@ const TikTokSettings: FC<{
             />
           </div>
         </div>
+        </div>
         <hr className="my-[15px] mb-[25px] border-tableBorder" />
         <div className="flex flex-col gap-[20px]">
           <Checkbox
@@ -533,7 +541,11 @@ const TikTokSettings: FC<{
           />
           <Checkbox
             variant="hollow"
-            label={t('label_disclose_video_content', 'Disclose Video Content')}
+            label={
+              isPhoto
+                ? t('label_disclose_photo_content', 'Disclose Photo Content')
+                : t('label_disclose_video_content', 'Disclose Video Content')
+            }
             disabled={isUploadMode}
             {...register('disclose', {
               value: false,
@@ -582,18 +594,28 @@ const TikTokSettings: FC<{
                       "Your video will be labeled as 'Promotional content'."
                     )}
                 <br />
-                {t(
-                  'this_cannot_be_changed_once_posted',
-                  'This cannot be changed once your video is posted.'
-                )}
+                {isPhoto
+                  ? t(
+                      'this_cannot_be_changed_once_photo_posted',
+                      'This cannot be changed once your photo is posted.'
+                    )
+                  : t(
+                      'this_cannot_be_changed_once_posted',
+                      'This cannot be changed once your video is posted.'
+                    )}
               </div>
             </div>
           )}
           <div className="text-[14px] my-[10px] text-balance">
-            {t(
-              'turn_on_to_disclose_video_promotes',
-              'Turn on to disclose that this video promotes goods or services in\n          exchange for something of value. Your video could promote yourself, a\n          third party, or both.'
-            )}
+            {isPhoto
+              ? t(
+                  'turn_on_to_disclose_photo_promotes',
+                  'Turn on to disclose that this photo promotes goods or services in exchange for something of value. Your photo could promote yourself, a third party, or both.'
+                )
+              : t(
+                  'turn_on_to_disclose_video_promotes',
+                  'Turn on to disclose that this video promotes goods or services in\n          exchange for something of value. Your video could promote yourself, a\n          third party, or both.'
+                )}
           </div>
         </div>
         <div className={clsx(!disclose && 'invisible h-0 overflow-hidden', 'mt-[20px]')}>
@@ -611,10 +633,15 @@ const TikTokSettings: FC<{
               'You are promoting yourself or your own brand.'
             )}
             <br />
-            {t(
-              'this_video_will_be_classified_brand_organic',
-              'This video will be classified as Brand Organic.'
-            )}
+            {isPhoto
+              ? t(
+                  'this_photo_will_be_classified_brand_organic',
+                  'This photo will be classified as Brand Organic.'
+                )
+              : t(
+                  'this_video_will_be_classified_brand_organic',
+                  'This video will be classified as Brand Organic.'
+                )}
           </div>
           <Checkbox
             variant="hollow"
@@ -631,10 +658,15 @@ const TikTokSettings: FC<{
               'You are promoting another brand or a third party.'
             )}
             <br />
-            {t(
-              'this_video_will_be_classified_branded_content',
-              'This video will be classified as Branded Content.'
-            )}
+            {isPhoto
+              ? t(
+                  'this_photo_will_be_classified_branded_content',
+                  'This photo will be classified as Branded Content.'
+                )
+              : t(
+                  'this_video_will_be_classified_branded_content',
+                  'This video will be classified as Branded Content.'
+                )}
           </div>
           {isSelfOnly && (
             <div className="text-balance my-[10px] text-[14px]">

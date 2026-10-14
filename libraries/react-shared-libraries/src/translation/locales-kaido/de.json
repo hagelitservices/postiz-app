@@ -20,5 +20,10 @@
   "this_feature_available_only_for_photos": "Diese Funktion gibt es nur für Fotos: Es wird eine Standardmusik hinzugefügt, die du später ändern kannst.",
   "turn_on_to_disclose_video_promotes": "Schalte das ein, um offenzulegen, dass dieses Video Waren oder Dienstleistungen gegen eine Gegenleistung bewirbt. Dein Video kann dich selbst, eine dritte Partei oder beides bewerben.",
   "you_are_promoting_another_brand": "Du bewirbst eine andere Marke oder eine dritte Partei.",
-  "you_are_promoting_yourself": "Du bewirbst dich selbst oder deine eigene Marke."
+  "you_are_promoting_yourself": "Du bewirbst dich selbst oder deine eigene Marke.",
+  "label_disclose_photo_content": "Fotoinhalt offenlegen",
+  "this_cannot_be_changed_once_photo_posted": "Das lässt sich nicht mehr ändern, sobald dein Foto gepostet ist.",
+  "turn_on_to_disclose_photo_promotes": "Schalte das ein, um offenzulegen, dass dieses Foto Waren oder Dienstleistungen gegen eine Gegenleistung bewirbt. Dein Foto kann dich selbst, eine dritte Partei oder beides bewerben.",
+  "this_photo_will_be_classified_brand_organic": "Dieses Foto wird als Brand Organic eingestuft.",
+  "this_photo_will_be_classified_branded_content": "Dieses Foto wird als Markeninhalt eingestuft."
 }
