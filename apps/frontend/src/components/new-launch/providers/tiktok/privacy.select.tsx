@@ -178,6 +178,7 @@ export const PrivacySelect: FC<{
                 key={option.value}
                 id={optionId(i)}
                 role="option"
+                aria-label={option.label}
                 aria-selected={option.value === value}
                 aria-disabled={blocked || undefined}
                 aria-describedby={blocked && isActive ? tipId : undefined}
