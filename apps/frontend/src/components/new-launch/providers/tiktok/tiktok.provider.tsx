@@ -23,12 +23,13 @@ import { Input } from '@gitroom/react/form/input';
 import { TiktokPreview } from '@gitroom/frontend/components/new-launch/providers/tiktok/tiktok.preview';
 import { TikTokMusicSelector } from '@gitroom/frontend/components/new-launch/providers/tiktok/tiktok.music';
 import { TikTokLocationSelector } from '@gitroom/frontend/components/new-launch/providers/tiktok/tiktok.location';
+import { PrivacySelect } from '@gitroom/frontend/components/new-launch/providers/tiktok/privacy.select';
 import { useLaunchStore } from '@gitroom/frontend/components/new-launch/store';
 
 const TikTokSettings: FC<{
   values?: any;
 }> = (props) => {
-  const { watch, register, setValue } = useSettings();
+  const { watch, register, setValue, formState } = useSettings();
   const { value, integration } = useIntegration();
   const t = useT();
   const customFunc = useCustomProviderFunction();
@@ -362,31 +363,32 @@ const TikTokSettings: FC<{
       )}
       {isTitle && <Input label="Title" {...register('title')} maxLength={89} />}
       <div className={directPostOnly}>
-        <Select
+        {/* Kaido (C18): own listbox so the blocked "Only me" can show its
+            reason on hover and keyboard focus (guideline 3b). The hidden
+            input keeps the field registered for react-hook-form. */}
+        <input type="hidden" {...register('privacy_level', { value: '' })} />
+        <PrivacySelect
           label={t('label_who_can_see_this_video', 'Who can see this video?')}
+          placeholder={t('select', 'Select')}
           disabled={isUploadMode}
-          {...register('privacy_level', {
-            value: '',
-          })}
-        >
-          <option value="" disabled>
-            {t('select', 'Select')}
-          </option>
-          {privacyLevel.map((item) => {
-            const blocked =
-              item.value === 'SELF_ONLY' && !!brand_content_toggle;
-            return (
-              <option
-                key={item.value}
-                value={item.value}
-                disabled={blocked}
-                title={blocked ? brandedNotPrivate : undefined}
-              >
-                {item.label}
-              </option>
-            );
-          })}
-        </Select>
+          value={privacy_level || ''}
+          onChange={(v) =>
+            setValue('privacy_level', v, {
+              shouldValidate: true,
+              shouldDirty: true,
+            })
+          }
+          error={formState?.errors?.privacy_level?.message as
+            | string
+            | undefined}
+          options={privacyLevel.map((item) => ({
+            ...item,
+            blockedReason:
+              item.value === 'SELF_ONLY' && !!brand_content_toggle
+                ? brandedNotPrivate
+                : undefined,
+          }))}
+        />
         {!!brand_content_toggle && (
           <div className="-mt-[14px] mb-[8px] text-[13px] text-balance">
             {brandedNotPrivate}
