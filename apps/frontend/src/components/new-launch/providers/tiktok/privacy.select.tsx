@@ -114,7 +114,9 @@ export const PrivacySelect: FC<{
         choose(active);
         break;
       case 'Escape':
+        // Close only the list, not the post editor around it.
         e.preventDefault();
+        e.stopPropagation();
         setOpen(false);
         break;
       case 'Tab':
@@ -212,7 +214,7 @@ export const PrivacySelect: FC<{
                   <div
                     id={tipId}
                     role="tooltip"
-                    className="absolute z-[310] start-[12px] bottom-[100%] mb-[4px] max-w-[280px] rounded-[6px] bg-[#222] px-[12px] py-[8px] text-[13px] leading-[1.4] text-white shadow-lg pointer-events-none"
+                    className="absolute z-[310] end-[8px] top-1/2 -translate-y-1/2 max-w-[65%] rounded-[6px] bg-[#222] ring-1 ring-white/15 px-[12px] py-[6px] text-[13px] leading-[1.4] text-white shadow-lg pointer-events-none"
                   >
                     {option.blockedReason}
                   </div>
