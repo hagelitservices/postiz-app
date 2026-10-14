@@ -368,7 +368,11 @@ const TikTokSettings: FC<{
             input keeps the field registered for react-hook-form. */}
         <input type="hidden" {...register('privacy_level', { value: '' })} />
         <PrivacySelect
-          label={t('label_who_can_see_this_video', 'Who can see this video?')}
+          label={
+            isPhoto
+              ? t('label_who_can_see_this_photo', 'Who can see this photo?')
+              : t('label_who_can_see_this_video', 'Who can see this video?')
+          }
           placeholder={t('select', 'Select')}
           disabled={isUploadMode}
           value={privacy_level || ''}
