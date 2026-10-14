@@ -711,7 +711,10 @@ const TikTokSettings: FC<{
           >
             {t('music_usage_confirmation', 'Music Usage Confirmation')}
           </a>
-          .
+          {/* Kaido (C27): German needs the verb particle after the links
+              ("… stimmst du TikToks … zu."); English keeps the guideline
+              wording, so the ending is just the full stop there. */}
+          {t('by_posting_you_agree_end', '.')}
         </div>
         {/* Guideline 5d */}
         <div className="mt-[10px] text-[14px] text-balance">
