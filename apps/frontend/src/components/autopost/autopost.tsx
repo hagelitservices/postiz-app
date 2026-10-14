@@ -11,6 +11,7 @@ import { array, boolean, object, string } from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Select } from '@gitroom/react/form/select';
 import { PickPlatforms } from '@gitroom/frontend/components/launches/helpers/pick.platform.component';
+import { isAutopostTarget } from '@gitroom/nestjs-libraries/database/prisma/autopost/autopost.targets';
 import { useToaster } from '@gitroom/react/toaster/toaster';
 import clsx from 'clsx';
 import { deleteDialog } from '@gitroom/react/helpers/delete.dialog';
@@ -398,9 +399,15 @@ export const AddOrEditWebhook: FC<{
                 </option>
               ))}
             </Select>
+            <div className="text-[14px] text-textColor/70">
+              {t(
+                'autopost_tiktok_excluded',
+                'TikTok is not available for Auto Post. Post to TikTok from the calendar instead.'
+              )}
+            </div>
             {allIntegrations.value === 'specific' && dataList && !isLoading && (
               <PickPlatforms
-                integrations={dataList.integrations}
+                integrations={dataList.integrations.filter(isAutopostTarget)}
                 selectedIntegrations={integrations as any[]}
                 onChange={(e) => form.setValue('integrations', e)}
                 singleSelect={false}

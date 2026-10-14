@@ -870,5 +870,6 @@
   "post_now_all_channels": "Jetzt in allen Kanälen posten",
   "schedule_post_in_all_channels_question": "Dieser Beitrag wurde für mehr als einen Kanal erstellt. Möchtest du ihn in allen Kanälen planen?",
   "schedule_all_channels": "In allen Kanälen planen",
-  "only_channel": "Nur"
+  "only_channel": "Nur",
+  "autopost_tiktok_excluded": "TikTok ist bei Auto Post nicht verfügbar. Für TikTok bitte über den Kalender posten."
 }

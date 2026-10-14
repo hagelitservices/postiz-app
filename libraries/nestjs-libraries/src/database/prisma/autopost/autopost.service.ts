@@ -14,6 +14,7 @@ import { PostsService } from '@gitroom/nestjs-libraries/database/prisma/posts/po
 import Parser from 'rss-parser';
 import { IntegrationService } from '@gitroom/nestjs-libraries/database/prisma/integrations/integration.service';
 import { makeId } from '@gitroom/nestjs-libraries/services/make.is';
+import { isAutopostTarget } from '@gitroom/nestjs-libraries/database/prisma/autopost/autopost.targets';
 import { TemporalService } from 'nestjs-temporal-core';
 import { TypedSearchAttributes } from '@temporalio/common';
 import {
@@ -335,8 +336,9 @@ export class AutopostService {
       parseIntegrations.some((ii: any) => ii.id === i.id)
     );
 
-    const integrationsToSend =
-      parseIntegrations.length === 0 ? integrations : neededIntegrations;
+    const integrationsToSend = (
+      parseIntegrations.length === 0 ? integrations : neededIntegrations
+    ).filter(isAutopostTarget);
     if (integrationsToSend.length === 0) {
       return;
     }

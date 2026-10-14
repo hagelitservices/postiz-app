@@ -872,5 +872,6 @@
   "post_now_all_channels": "Post all channels now",
   "schedule_post_in_all_channels_question": "This post was created for more than one channel. Do you want to schedule all of them?",
   "schedule_all_channels": "Schedule all channels",
-  "only_channel": "Only"
+  "only_channel": "Only",
+  "autopost_tiktok_excluded": "TikTok is not available for Auto Post. Post to TikTok from the calendar instead."
 }
