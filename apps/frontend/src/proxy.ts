@@ -21,7 +21,7 @@ export async function proxy(request: NextRequest) {
     ? acceptLanguage.get(request.cookies.get(cookieName).value)
     : acceptLanguage.get(
         request.headers.get('Accept-Language') ||
-          request.headers.get('accept-language')
+          request.headers.get('accept-language'),
       );
 
   const requestHeaders = new Headers(request.headers);
@@ -65,7 +65,7 @@ export async function proxy(request: NextRequest) {
   // If the URL is logout, delete the cookie and redirect to login
   if (nextUrl.href.indexOf('/auth/logout') > -1) {
     const response = NextResponse.redirect(
-      new URL('/auth/login', nextUrl.href)
+      new URL('/auth/login', nextUrl.href),
     );
     response.cookies.set('auth', '', {
       path: '/',
@@ -104,7 +104,7 @@ export async function proxy(request: NextRequest) {
           : findIndex
         ).toUpperCase()}`;
     return NextResponse.redirect(
-      new URL(`/auth${url}${additional}`, nextUrl.href)
+      new URL(`/auth${url}${additional}`, nextUrl.href),
     );
   }
 
@@ -146,7 +146,7 @@ export async function proxy(request: NextRequest) {
         })
       ).json();
       const redirect = NextResponse.redirect(
-        new URL(`${appHome}?added=true`, nextUrl.href)
+        new URL(`${appHome}?added=true`, nextUrl.href),
       );
       if (id) {
         redirect.cookies.set('showorg', id, {
@@ -168,8 +168,8 @@ export async function proxy(request: NextRequest) {
       return NextResponse.redirect(
         new URL(
           !!process.env.IS_GENERAL ? '/launches' : `/analytics`,
-          nextUrl.href
-        )
+          nextUrl.href,
+        ),
       );
     }
 
