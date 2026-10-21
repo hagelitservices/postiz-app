@@ -12,3 +12,12 @@ export const KAIDO_CHANNELS = [
   'gmb',
   'x',
 ];
+
+// Kaido (I7d): the organisation used for TikTok's app review demo video offers TikTok only — the review counts the
+// logos of other networks in "Add Channel" as displayed third-party platforms. Real organisations keep the full list.
+const KAIDO_DEMO_ORGS: Record<string, string[]> = {
+  '41d659cc-e55d-4141-8a73-6022ec5f8aa6': ['tiktok'], // „Kaido Publish Demo“
+};
+
+export const kaidoChannelsFor = (orgId?: string) =>
+  (orgId && KAIDO_DEMO_ORGS[orgId]) || KAIDO_CHANNELS;
