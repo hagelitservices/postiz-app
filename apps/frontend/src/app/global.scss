@@ -91,7 +91,7 @@ body * {
 }
 .swal2-confirm {
   @apply bg-customColor50 #{!important};
-  @apply text-white #{!important};
+  color: var(--new-btn-primary-text) !important;
 }
 
 .w-md-editor-text {
@@ -121,7 +121,7 @@ body * {
 }
 
 .react-tags.is-active {
-  @apply border-customColor51;
+  border-color: var(--new-btn-primary);
 }
 
 .react-tags.is-disabled {
@@ -267,7 +267,7 @@ body * {
 }
 
 .react-tags__listbox-option[aria-selected='true']:not(.is-active)::after {
-  @apply text-customColor51;
+  color: var(--new-accent-text);
 }
 
 .react-tags__listbox-option-highlight {
@@ -323,7 +323,7 @@ body * {
 }
 //
 //:root {
-//  --copilot-kit-primary-color: #612ad5 !important;
+//  --copilot-kit-primary-color: var(--new-btn-primary) !important;
 //  --copilot-kit-background-color: #0b0f1c !important;
 //  --copilot-kit-separator-color: #1f2941 !important;
 //  --copilot-kit-contrast-color: #ffffff !important;
@@ -377,7 +377,7 @@ body * {
 }
 
 .uppy-ProgressBar-inner {
-  @apply bg-customColor51;
+  background-color: var(--new-btn-primary);
   height: 25px;
   border-radius: 4px;
 }
@@ -617,7 +617,7 @@ html[dir='rtl'] [dir='ltr'] {
 
 .ProseMirror .mention {
   font-weight: bold;
-  color: #ae8afc;
+  color: var(--new-accent-text);
 }
 
 .ProseMirror img:not(.ProseMirror-separator) {
@@ -747,7 +747,7 @@ html[dir='rtl'] [dir='ltr'] {
     background-color: var(--purple-light);
     border-radius: 0.4rem;
     box-decoration-break: clone;
-    color: #ae8afc;
+    color: var(--new-accent-text);
     &::after {
       content: '\200B';
     }
@@ -858,7 +858,7 @@ html[dir='rtl'] [dir='ltr'] {
 
 .forceChange .changeColor {
   background: var(--new-btn-primary) !important;
-  color: #fff !important;
+  color: var(--new-btn-primary-text) !important;
 }
 
 .text-shadow-tags {
@@ -879,4 +879,56 @@ html[dir='rtl'] [dir='ltr'] {
 }
 .copilotKitInputContainer.poweredByContainer {
   padding-bottom: 0 !important;
+}
+
+// Kaido (I5b): content on accent fills follows the fill (ink on lime, lime on
+// ink). Postiz hard-codes white text and white icon strokes on its purple
+// buttons; this one rule replaces them everywhere instead of per button.
+:is(
+    .bg-btnPrimary,
+    .\!bg-btnPrimary,
+    .bg-forth,
+    .bg-newTableTextFocused,
+    .bg-customColor4,
+    .group:hover .group-hover\:bg-btnPrimary
+  ):not(.disabled\:bg-btnSimple:disabled) {
+  --kaido-on-accent: var(--new-btn-primary-text);
+}
+.bg-ai:not(.disabled\:bg-btnSimple:disabled) {
+  --kaido-on-accent: var(--new-ai-btn-text);
+}
+:is(
+    .bg-btnPrimary,
+    .\!bg-btnPrimary,
+    .bg-forth,
+    .bg-newTableTextFocused,
+    .bg-customColor4,
+    .group:hover .group-hover\:bg-btnPrimary,
+    .bg-ai
+  ):not(.disabled\:bg-btnSimple:disabled) {
+  color: var(--kaido-on-accent) !important;
+
+  .text-white,
+  .\!text-white {
+    color: inherit !important;
+  }
+  [stroke='white' i],
+  [stroke='#fff' i],
+  [stroke='#ffffff' i] {
+    stroke: currentColor;
+  }
+  [fill='white' i],
+  [fill='#fff' i],
+  [fill='#ffffff' i] {
+    fill: currentColor;
+  }
+  .border-white {
+    border-right-color: currentColor;
+    border-bottom-color: currentColor;
+    border-left-color: currentColor;
+  }
+  // Slider knob on the "on" track.
+  .bg-customColor5 {
+    background-color: var(--kaido-on-accent);
+  }
 }

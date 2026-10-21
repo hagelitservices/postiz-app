@@ -22,18 +22,18 @@ interface HighlightRange {
   end: number;
 }
 
-// The btnPrimary token has no alpha channel, so the tints are mixed in CSS.
+// The mark token has no alpha channel, so the tints are mixed in CSS.
 const MARK_CLASS = [
-  'bg-[color-mix(in_srgb,var(--new-btn-primary)_25%,transparent)]',
-  'bg-[color-mix(in_srgb,var(--new-btn-primary)_45%,transparent)]',
-  'bg-[color-mix(in_srgb,var(--new-btn-primary)_65%,transparent)]',
+  'bg-[color-mix(in_srgb,var(--new-mark)_20%,transparent)]',
+  'bg-[color-mix(in_srgb,var(--new-mark)_32%,transparent)]',
+  'bg-[color-mix(in_srgb,var(--new-mark)_40%,transparent)]',
 ];
 
 const markClassName = (count: number, pending: boolean) =>
   clsx(
     'text-inherit rounded-[2px]',
     pending
-      ? 'bg-[color-mix(in_srgb,var(--new-btn-primary)_40%,transparent)] underline decoration-btnPrimary decoration-2'
+      ? 'bg-[color-mix(in_srgb,var(--new-mark)_35%,transparent)] underline decoration-btnPrimary decoration-2'
       : [MARK_CLASS[Math.min(count, MARK_CLASS.length) - 1], 'cursor-pointer']
   );
 

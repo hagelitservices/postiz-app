@@ -909,7 +909,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
       onClick={() => setMobileTab(mobileTab === 'preview' ? 'edit' : 'preview')}
       className={clsx(
         'hidden mobile:flex shrink-0 w-[32px] h-[44px] justify-end items-center cursor-pointer',
-        mobileTab === 'preview' ? 'text-[#FC69FF]' : 'text-[#A3A3A3]'
+        mobileTab === 'preview' ? 'text-[var(--new-accent-text)]' : 'text-[#A3A3A3]'
       )}
     >
       <EyeIcon />
@@ -1060,7 +1060,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                     <div
                       onClick={() => setShowSettings(!showSettings)}
                       className={clsx(
-                        'bg-[#612BD3] rounded-[12px] flex items-center gap-[8px] cursor-pointer p-[12px] mobile:hidden',
+                        'bg-btnPrimary rounded-[12px] flex items-center gap-[8px] cursor-pointer p-[12px] mobile:hidden',
                         showSettings ? '!rounded-b-none' : ''
                       )}
                     >
@@ -1174,7 +1174,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
             )}
             {addEditSets && (
               <button
-                className="text-white text-[15px] font-[600] min-w-[180px] btnSub disabled:cursor-not-allowed disabled:opacity-80 outline-none gap-[8px] flex justify-center items-center h-[44px] rounded-[8px] bg-[#612BD3] ps-[20px] pe-[16px]"
+                className="text-white text-[15px] font-[600] min-w-[180px] btnSub disabled:cursor-not-allowed disabled:opacity-80 outline-none gap-[8px] flex justify-center items-center h-[44px] rounded-[8px] bg-btnPrimary ps-[20px] pe-[16px]"
                 disabled={
                   selectedIntegrations.length === 0 || loading || locked
                 }
@@ -1205,7 +1205,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                   aria-disabled={postBlocker ? true : undefined}
                   aria-describedby={postBlocker ? 'post-blocker' : undefined}
                   onClick={schedule('schedule')}
-                  className="text-white relative min-w-[180px] btnSub disabled:cursor-not-allowed disabled:opacity-80 aria-disabled:cursor-not-allowed aria-disabled:opacity-80 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#612BD3] dark:focus-visible:outline-[#B69DEC] gap-[8px] flex justify-center items-center h-[44px] rounded-[8px] bg-[#612BD3] ps-[20px] pe-[16px]"
+                  className="text-white relative min-w-[180px] btnSub disabled:cursor-not-allowed disabled:opacity-80 aria-disabled:cursor-not-allowed aria-disabled:opacity-80 outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-btnPrimary gap-[8px] flex justify-center items-center h-[44px] rounded-[8px] bg-btnPrimary ps-[20px] pe-[16px]"
                 >
                   {loading && (
                     <div className="absolute left-[50%] top-[50%] -translate-y-[50%] -translate-x-[50%]">
@@ -1263,7 +1263,7 @@ export const ManageModal: FC<AddEditModalProps> = (props) => {
                         : 'hidden group-hover:flex'
                     )}
                   >
-                    <div className="text-white rounded-[8px] bg-[#D82D7E] h-[44px] w-full flex justify-center items-center post-now">
+                    <div className="text-white rounded-[8px] bg-ai h-[44px] w-full flex justify-center items-center post-now">
                       {t('post_now', 'Post Now')}
                     </div>
                   </button>

@@ -702,7 +702,7 @@ const TikTokSettings: FC<{
               <a
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#612BD3] dark:text-[#B69DEC] underline hover:no-underline"
+                className="text-[var(--new-accent-text)] underline hover:no-underline"
                 href="https://www.tiktok.com/legal/page/global/bc-policy/en"
               >
                 {t('branded_content_policy', 'Branded Content Policy')}
@@ -713,7 +713,7 @@ const TikTokSettings: FC<{
           <a
             target="_blank"
             rel="noopener noreferrer"
-            className="text-[#612BD3] dark:text-[#B69DEC] underline hover:no-underline"
+            className="text-[var(--new-accent-text)] underline hover:no-underline"
             href="https://www.tiktok.com/legal/page/global/music-usage-confirmation/en"
           >
             {t('music_usage_confirmation', 'Music Usage Confirmation')}

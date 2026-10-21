@@ -153,7 +153,7 @@ export const DatePickerPanel: FC<{
                   : modifiers.outside
                   ? '!text-newTextColor/20 !font-[400]'
                   : dayjs(day).isSame(dayjs(), 'day')
-                  ? '!text-[#FC69FF] !font-[600]'
+                  ? '!text-[var(--new-accent-text)] !font-[600]'
                   : '!text-textItemBlur !font-[400]'
               )
             }
@@ -241,7 +241,7 @@ export const DatePickerPanel: FC<{
             return '!text-gray';
           }
           if (modifiers.selected) {
-            return '!text-white !bg-seventh !outline-none';
+            return '!bg-btnPrimary !outline-none';
           }
           return '!text-textColor';
         }}

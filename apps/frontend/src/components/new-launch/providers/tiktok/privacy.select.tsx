@@ -153,8 +153,8 @@ export const PrivacySelect: FC<{
           onKeyDown={onKeyDown}
           className={clsx(
             'h-[42px] w-full bg-newBgColorInner px-[16px] border rounded-[8px] text-[14px] flex items-center justify-between gap-[8px] text-start',
-            'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#612BD3] dark:focus-visible:outline-[#B69DEC]',
-            open ? 'border-[#612BD3]' : 'border-newTableBorder',
+            'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-btnPrimary',
+            open ? 'border-btnPrimary' : 'border-newTableBorder',
             disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'
           )}
         >

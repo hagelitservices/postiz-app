@@ -81,7 +81,7 @@ type PlanAction = {
 };
 
 const planButton = {
-  primary: 'bg-btnPrimary text-white hover:bg-[#5023b8]',
+  primary: 'bg-btnPrimary text-white hover:bg-[var(--new-btn-primary-hover)]',
   simple: 'bg-btnSimple text-btnText hover:opacity-80',
   current: 'bg-newBgLineColor text-textItemBlur',
   danger: 'bg-red-500 text-white hover:bg-red-600',
@@ -107,7 +107,7 @@ const PlanCard: FC<{
       className={clsx(
         'relative flex flex-col gap-[20px] rounded-[12px] border p-[24px] mobile:p-[20px]',
         current
-          ? 'border-transparent bg-gradient-to-b from-seventh to-btnPrimary text-white shadow-lg shadow-purple-500/25'
+          ? 'border-transparent bg-btnPrimary text-white shadow-lg'
           : 'border-newTableBorder bg-newBgColorInner shadow-previewShadow'
       )}
     >
@@ -162,7 +162,7 @@ const PlanCard: FC<{
             current
               ? action.variant === 'current'
                 ? 'bg-white/15 text-white'
-                : 'bg-white text-btnPrimary hover:bg-white/90'
+                : 'bg-[var(--new-btn-primary-text)] text-btnPrimary hover:opacity-90'
               : planButton[action.variant],
             disabled ? 'cursor-default' : 'cursor-pointer',
             disabled && action.variant !== 'current' && 'opacity-50'
@@ -213,7 +213,7 @@ const PlanCard: FC<{
               fill="none"
               className={clsx(
                 'shrink-0',
-                current ? 'text-white/75' : 'text-[#8b5cf6]'
+                current ? 'opacity-75' : 'text-[var(--new-accent-text)]'
               )}
             >
               <circle
@@ -673,7 +673,7 @@ export const MainBillingComponent: FC<{
             )}
           >
             {t('billing_yearly', 'Yearly')}
-            <div className="bg-[#AA0FA4] text-white text-[12px] px-[6px] rounded-[4px]">
+            <div className="bg-ai text-white text-[12px] px-[6px] rounded-[4px]">
               {t('billing_20_percent_off', '20% Off')}
             </div>
           </div>
@@ -740,7 +740,7 @@ export const MainBillingComponent: FC<{
       </div>
       {!!subscription?.id && (
         <div className="flex items-center gap-[16px] rounded-[12px] border border-newTableBorder bg-newBgColorInner shadow-previewShadow px-[24px] py-[20px] mobile:flex-col mobile:items-stretch mobile:p-[16px]">
-          <div className="w-[48px] h-[48px] rounded-full bg-[#612bd3]/10 text-[#612bd3] flex items-center justify-center shrink-0 mobile:hidden">
+          <div className="w-[48px] h-[48px] rounded-full bg-[color-mix(in_srgb,var(--new-btn-primary)_10%,transparent)] text-[var(--new-accent-text)] flex items-center justify-center shrink-0 mobile:hidden">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"

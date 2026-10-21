@@ -172,7 +172,7 @@ export const useMenuItem = () => {
               gradientUnits="userSpaceOnUse"
             >
               <stop />
-              <stop offset="1" stopColor="#6112ff" />
+              <stop offset="1" stopColor="#D4FF00" />
             </radialGradient>
             <linearGradient
               id="agent_media_play"
@@ -183,7 +183,7 @@ export const useMenuItem = () => {
               gradientUnits="userSpaceOnUse"
             >
               <stop />
-              <stop offset="1" stopColor="#2a008d" />
+              <stop offset="1" stopColor="#5C6E00" />
             </linearGradient>
             <linearGradient
               id="agent_media_line1"
@@ -193,8 +193,8 @@ export const useMenuItem = () => {
               y2="37.84"
               gradientUnits="userSpaceOnUse"
             >
-              <stop offset="0.32" stopColor="#9162ff" />
-              <stop offset="0.69" stopColor="#4500e7" />
+              <stop offset="0.32" stopColor="#EEFF99" />
+              <stop offset="0.69" stopColor="#A8CC00" />
             </linearGradient>
             <linearGradient
               id="agent_media_line2"
@@ -204,8 +204,8 @@ export const useMenuItem = () => {
               y2="26.02"
               gradientUnits="userSpaceOnUse"
             >
-              <stop offset="0.32" stopColor="#9162ff" />
-              <stop offset="0.69" stopColor="#4500e7" />
+              <stop offset="0.32" stopColor="#EEFF99" />
+              <stop offset="0.69" stopColor="#A8CC00" />
             </linearGradient>
             <clipPath id="agent_media_clip">
               <rect width="27.19" height="27.19" rx="6.43" fill="#fff" />
