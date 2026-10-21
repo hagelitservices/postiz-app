@@ -108,13 +108,17 @@ export async function proxy(request: NextRequest) {
     );
   }
 
-  // If the url is /auth and the cookie exists, redirect to /
+  // Kaido (I4/I6): "/" of publish.kaidostudios.de is the product page (served
+  // by nginx), so signed-in users go straight to the app instead of "/".
+  const appHome = !!process.env.IS_GENERAL ? '/launches' : `/analytics`;
+
+  // If the url is /auth and the cookie exists, redirect to the app
   if (nextUrl.pathname.startsWith('/auth') && authCookie) {
-    return NextResponse.redirect(new URL(`/${url}`, nextUrl.href));
+    return NextResponse.redirect(new URL(`${appHome}${url}`, nextUrl.href));
   }
   if (nextUrl.pathname.startsWith('/auth') && !authCookie) {
     if (org) {
-      const redirect = NextResponse.redirect(new URL(`/`, nextUrl.href));
+      const redirect = NextResponse.redirect(new URL(appHome, nextUrl.href));
       redirect.cookies.set('org', org, {
         ...(!process.env.NOT_SECURED
           ? {
@@ -142,7 +146,7 @@ export async function proxy(request: NextRequest) {
         })
       ).json();
       const redirect = NextResponse.redirect(
-        new URL(`/?added=true`, nextUrl.href)
+        new URL(`${appHome}?added=true`, nextUrl.href)
       );
       if (id) {
         redirect.cookies.set('showorg', id, {
