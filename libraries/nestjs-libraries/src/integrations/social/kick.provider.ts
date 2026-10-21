@@ -1,3 +1,4 @@
+import { oauthFrontendUrl } from '@gitroom/nestjs-libraries/integrations/social/oauth.redirect';
 import {
   AuthTokenDetails,
   PostDetails,
@@ -72,7 +73,7 @@ export class KickProvider extends SocialAbstract implements SocialProvider {
     const state = makeSecureId(32);
     const { codeVerifier, codeChallenge } = this.generatePKCE();
 
-    const redirectUri = `${process.env.FRONTEND_URL}/integrations/social/kick`;
+    const redirectUri = `${oauthFrontendUrl()}/integrations/social/kick`;
 
     const url =
       `https://id.kick.com/oauth/authorize` +
@@ -96,7 +97,7 @@ export class KickProvider extends SocialAbstract implements SocialProvider {
     codeVerifier: string;
     refresh?: string;
   }) {
-    const redirectUri = `${process.env.FRONTEND_URL}/integrations/social/kick${
+    const redirectUri = `${oauthFrontendUrl()}/integrations/social/kick${
       params.refresh ? `?refresh=${params.refresh}` : ''
     }`;
 

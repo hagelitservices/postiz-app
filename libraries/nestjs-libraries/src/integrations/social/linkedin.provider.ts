@@ -1,3 +1,4 @@
+import { oauthFrontendUrl } from '@gitroom/nestjs-libraries/integrations/social/oauth.redirect';
 import {
   AuthTokenDetails,
   PendingCheckResponse,
@@ -183,7 +184,7 @@ export class LinkedinProvider extends SocialAbstract implements SocialProvider {
     const url = `https://www.linkedin.com/oauth/v2/authorization?response_type=code&client_id=${
       process.env.LINKEDIN_CLIENT_ID
     }&prompt=none&redirect_uri=${encodeURIComponent(
-      `${process.env.FRONTEND_URL}/integrations/social/linkedin`
+      `${oauthFrontendUrl()}/integrations/social/linkedin`
     )}&state=${state}&scope=${encodeURIComponent(this.scopes.join(' '))}`;
     return {
       url,
@@ -202,7 +203,7 @@ export class LinkedinProvider extends SocialAbstract implements SocialProvider {
     body.append('code', params.code);
     body.append(
       'redirect_uri',
-      `${process.env.FRONTEND_URL}/integrations/social/linkedin${
+      `${oauthFrontendUrl()}/integrations/social/linkedin${
         params.refresh ? `?refresh=${params.refresh}` : ''
       }`
     );

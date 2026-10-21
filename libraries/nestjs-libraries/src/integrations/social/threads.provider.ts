@@ -1,3 +1,4 @@
+import { oauthFrontendUrl } from '@gitroom/nestjs-libraries/integrations/social/oauth.redirect';
 import {
   AnalyticsData,
   AuthTokenDetails,
@@ -118,9 +119,9 @@ export class ThreadsProvider extends SocialAbstract implements SocialProvider {
         `?client_id=${process.env.THREADS_APP_ID}` +
         `&redirect_uri=${encodeURIComponent(
           `${
-            process?.env.FRONTEND_URL?.indexOf('https') == -1
-              ? `https://redirectmeto.com/${process?.env.FRONTEND_URL}`
-              : `${process?.env.FRONTEND_URL}`
+            oauthFrontendUrl()?.indexOf('https') == -1
+              ? `https://redirectmeto.com/${oauthFrontendUrl()}`
+              : `${oauthFrontendUrl()}`
           }/integrations/social/threads`
         )}` +
         `&state=${state}` +
@@ -141,9 +142,9 @@ export class ThreadsProvider extends SocialAbstract implements SocialProvider {
           `?client_id=${process.env.THREADS_APP_ID}` +
           `&redirect_uri=${encodeURIComponent(
             `${
-              process?.env.FRONTEND_URL?.indexOf('https') == -1
-                ? `https://redirectmeto.com/${process?.env.FRONTEND_URL}`
-                : `${process?.env.FRONTEND_URL}`
+              oauthFrontendUrl()?.indexOf('https') == -1
+                ? `https://redirectmeto.com/${oauthFrontendUrl()}`
+                : `${oauthFrontendUrl()}`
             }/integrations/social/threads`
           )}` +
           `&grant_type=authorization_code` +

@@ -1,3 +1,4 @@
+import { oauthFrontendUrl } from '@gitroom/nestjs-libraries/integrations/social/oauth.redirect';
 import {
   AuthTokenDetails,
   PendingCheckResponse,
@@ -124,7 +125,7 @@ export class MastodonProvider extends SocialAbstract implements SocialProvider {
     form.append('grant_type', 'authorization_code');
     form.append(
       'redirect_uri',
-      `${process.env.FRONTEND_URL}/integrations/social/mastodon`
+      `${oauthFrontendUrl()}/integrations/social/mastodon`
     );
     form.append('scope', this.scopes.join(' '));
 

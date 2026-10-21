@@ -1,3 +1,4 @@
+import { oauthFrontendUrl } from '@gitroom/nestjs-libraries/integrations/social/oauth.redirect';
 import {
   AnalyticsData,
   AuthTokenDetails,
@@ -23,7 +24,7 @@ const clientAndGmb = () => {
     clientId: process.env.GOOGLE_GMB_CLIENT_ID || process.env.YOUTUBE_CLIENT_ID,
     clientSecret:
       process.env.GOOGLE_GMB_CLIENT_SECRET || process.env.YOUTUBE_CLIENT_SECRET,
-    redirectUri: `${process.env.FRONTEND_URL}/integrations/social/gmb`,
+    redirectUri: `${oauthFrontendUrl()}/integrations/social/gmb`,
   });
 
   const oauth2 = (newClient: OAuth2Client) =>
@@ -164,7 +165,7 @@ export class GmbProvider extends SocialAbstract implements SocialProvider {
         access_type: 'offline',
         prompt: 'consent',
         state,
-        redirect_uri: `${process.env.FRONTEND_URL}/integrations/social/gmb`,
+        redirect_uri: `${oauthFrontendUrl()}/integrations/social/gmb`,
         scope: this.scopes.slice(0),
       }),
       codeVerifier: makeSecureId(11),

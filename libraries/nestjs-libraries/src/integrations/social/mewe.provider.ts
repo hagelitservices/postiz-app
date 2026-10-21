@@ -1,3 +1,4 @@
+import { oauthFrontendUrl } from '@gitroom/nestjs-libraries/integrations/social/oauth.redirect';
 import {
   AuthTokenDetails,
   PostDetails,
@@ -86,7 +87,7 @@ export class MeweProvider extends SocialAbstract implements SocialProvider {
         `${this.meweHost}/login` +
         `?client_id=${process.env.MEWE_APP_ID}` +
         `&redirect_uri=${encodeURIComponent(
-          `${process.env.FRONTEND_URL}/integrations/social/mewe`
+          `${oauthFrontendUrl()}/integrations/social/mewe`
         )}` +
         `&state=${state}`,
       codeVerifier: makeSecureId(10),

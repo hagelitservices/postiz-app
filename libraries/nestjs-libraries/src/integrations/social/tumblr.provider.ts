@@ -1,3 +1,4 @@
+import { oauthFrontendUrl } from '@gitroom/nestjs-libraries/integrations/social/oauth.redirect';
 import {
   AuthTokenDetails,
   PostDetails,
@@ -404,7 +405,7 @@ export class TumblrProvider extends SocialAbstract implements SocialProvider {
   }
 
   private redirectUri() {
-    return `${process.env.FRONTEND_URL}/integrations/social/tumblr`;
+    return `${oauthFrontendUrl()}/integrations/social/tumblr`;
   }
 
   private getAvatarUrl(blogName: string) {

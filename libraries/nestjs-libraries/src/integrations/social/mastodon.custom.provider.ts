@@ -1,3 +1,4 @@
+import { oauthFrontendUrl } from '@gitroom/nestjs-libraries/integrations/social/oauth.redirect';
 import {
   ClientInformation,
   PostDetails,
@@ -20,7 +21,7 @@ export class MastodonCustomProvider extends MastodonProvider {
     form.append('client_name', 'Postiz');
     form.append(
       'redirect_uris',
-      `${process.env.FRONTEND_URL}/integrations/social/mastodon`
+      `${oauthFrontendUrl()}/integrations/social/mastodon`
     );
     form.append('scopes', this.scopes.join(' '));
     form.append('website', process.env.FRONTEND_URL!);
