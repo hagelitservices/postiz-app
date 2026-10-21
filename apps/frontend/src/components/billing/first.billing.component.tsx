@@ -33,17 +33,17 @@ const ModeComponent = dynamic(
   () => import('@gitroom/frontend/components/layout/mode.component'),
   {
     ssr: false,
-  }
+  },
 );
 
 const EmbeddedBilling = dynamic(
   () =>
     import('@gitroom/frontend/components/billing/embedded.billing').then(
-      (mod) => mod.EmbeddedBilling
+      (mod) => mod.EmbeddedBilling,
     ),
   {
     ssr: false,
-  }
+  },
 );
 
 export const FirstBillingComponent = () => {
@@ -85,12 +85,12 @@ export const FirstBillingComponent = () => {
 
   const showYouTube = () => {
     modals.openModal({
-      title: 'Grow Fast With Postiz (Play the video)',
+      title: 'Grow Fast With Kaido Publish (Play the video)',
       children: (
         <iframe
           className="h-full aspect-video min-w-[800px]"
           src="https://www.youtube.com/embed/BdsCVvEYgHU?si=vvhaZJ8I5oXXvVJS?autoplay=1"
-          title="Postiz Tutorial"
+          title="Kaido Publish Tutorial"
           allow="autoplay"
           allowFullScreen
         />
@@ -107,7 +107,7 @@ export const FirstBillingComponent = () => {
       revalidateIfStale: false,
       refreshWhenOffline: false,
       refreshWhenHidden: false,
-    }
+    },
   );
 
   useEffect(() => {
@@ -118,21 +118,18 @@ export const FirstBillingComponent = () => {
 
   const price = useMemo(
     () => Object.entries(pricing).filter(([key, value]) => key !== 'FREE'),
-    []
+    [],
   );
 
   const JoinOver = () => {
     return (
       <>
         <div className="text-[46px] font-[600] leading-[110%] tablet:text-[36px] mobile:!text-[30px] whitespace-pre-line text-balance">
-          {t('billing_join_over', 'Join Over')}{' '}
-          <span className="text-[#FC69FF]">
-            {t('billing_entrepreneurs_count', '20,000+ Entrepreneurs')}
-          </span>{' '}
-          {t('billing_who_use', 'who use')}{' '}
+          {/* Kaido (I5): no Postiz user counts, they would be false for Kaido Publish */}
+          {t('join_10000_entrepreneurs_who_use_postiz', 'Kaido Publish')}{' '}
           {t(
-            'billing_postiz_grow_social',
-            'Postiz To Grow Their Social Presence'
+            'to_manage_all_your_social_media_channels',
+            'To Manage All Your Social Media Channels',
           )}
         </div>
 
@@ -147,7 +144,7 @@ export const FirstBillingComponent = () => {
                 alt="YouTube"
               />
             </div>
-            <div>See the power of Postiz (click here)</div>
+            <div>See the power of Kaido Publish (click here)</div>
           </div>
         </div>
 
@@ -166,7 +163,7 @@ export const FirstBillingComponent = () => {
               <div>
                 {t(
                   'billing_pay_nothing_7_days',
-                  'Pay NOTHING for the first 7-days'
+                  'Pay NOTHING for the first 7-days',
                 )}
               </div>
             </div>
@@ -219,14 +216,14 @@ export const FirstBillingComponent = () => {
             <div className="mt-[24px] p-[24px] rounded-[20px] border-[1.5px] border-newColColor text-[16px] font-[500]">
               {t(
                 'billing_other_account_subscribed',
-                'Another account with this email already has an active subscription. Please log off and sign in to that account to manage your subscription.'
+                'Another account with this email already has an active subscription. Please log off and sign in to that account to manage your subscription.',
               )}
             </div>
           ) : stripeFailed ? (
             <div className="mt-[24px] p-[24px] rounded-[20px] border-[1.5px] border-newColColor text-[16px] font-[500]">
               {t(
                 'billing_stripe_load_failed',
-                'The payment form could not be loaded. Please disable ad blockers or privacy extensions for this page and reload.'
+                'The payment form could not be loaded. Please disable ad blockers or privacy extensions for this page and reload.',
               )}
             </div>
           ) : !isLoading && data && stripe ? (
@@ -255,7 +252,7 @@ export const FirstBillingComponent = () => {
                     'h-[32px] mobile:flex-1 rounded-[6px] text-[16px] px-[12px] flex justify-center items-center',
                     period === 'MONTHLY'
                       ? 'bg-boxFocused text-textItemFocused'
-                      : 'cursor-pointer'
+                      : 'cursor-pointer',
                   )}
                   onClick={() => setPeriod('MONTHLY')}
                 >
@@ -266,7 +263,7 @@ export const FirstBillingComponent = () => {
                     'gap-[10px] h-[32px] mobile:flex-1 rounded-[6px] text-[16px] px-[12px] flex justify-center items-center',
                     period === 'YEARLY'
                       ? 'bg-boxFocused text-textItemFocused'
-                      : 'cursor-pointer'
+                      : 'cursor-pointer',
                   )}
                   onClick={() => setPeriod('YEARLY')}
                 >
@@ -287,7 +284,7 @@ export const FirstBillingComponent = () => {
                       'cursor-pointer select-none w-[266px] h-[138px] tablet:w-full tablet:h-[124px] p-[24px] tablet:p-[15px] rounded-[20px] flex flex-col',
                       key === tier
                         ? 'border-[1.5px] border-[#618DFF]'
-                        : 'border-[1.5px] border-newColColor'
+                        : 'border-[1.5px] border-newColColor',
                     )}
                   >
                     <div className="text-[20px] mobile:text-[18px] font-[500]">
@@ -308,7 +305,7 @@ export const FirstBillingComponent = () => {
                     </div>
                   </div>
                 ),
-                []
+                [],
               )}
             </div>
             <div className="flex flex-col mt-[54px] gap-[24px] tablet:mt-[40px]">

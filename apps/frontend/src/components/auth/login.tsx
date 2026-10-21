@@ -22,7 +22,7 @@ type Inputs = {
   providerToken: '';
   provider: 'LOCAL';
 };
-export function Login() {
+export function Login({ registration = true }: { registration?: boolean }) {
   const t = useT();
   const [loading, setLoading] = useState(false);
   const [notActivated, setNotActivated] = useState(false);
@@ -122,7 +122,7 @@ export function Login() {
                   <p className="text-amber-400 text-sm mb-2">
                     {t(
                       'account_not_activated',
-                      'Your account is not activated yet. Please check your email for the activation link.'
+                      'Your account is not activated yet. Please check your email for the activation link.',
                     )}
                   </p>
                   <Link
@@ -143,12 +143,14 @@ export function Login() {
                     {t('sign_in_1', 'Sign in')}
                   </Button>
                 </div>
-                <p className="mt-4 text-sm">
-                  {t('don_t_have_an_account', "Don't Have An Account?")}&nbsp;
-                  <Link href="/auth" className="underline cursor-pointer">
-                    {t('sign_up', 'Sign Up')}
-                  </Link>
-                </p>
+                {registration && (
+                  <p className="mt-4 text-sm">
+                    {t('don_t_have_an_account', "Don't Have An Account?")}&nbsp;
+                    <Link href="/auth" className="underline cursor-pointer">
+                      {t('sign_up', 'Sign Up')}
+                    </Link>
+                  </p>
+                )}
                 <p className="mt-4 text-sm">
                   <Link
                     href="/auth/forgot"
