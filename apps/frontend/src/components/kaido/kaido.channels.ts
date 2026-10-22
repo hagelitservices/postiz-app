@@ -21,3 +21,20 @@ const KAIDO_DEMO_ORGS: Record<string, string[]> = {
 
 export const kaidoChannelsFor = (orgId?: string) =>
   (orgId && KAIDO_DEMO_ORGS[orgId]) || KAIDO_CHANNELS;
+
+// Kaido (Gegenprüfung I7, 22.10.2026): hints read "Tiktok (Demo): …" because upstream capitalises the identifier.
+// TikTok's review counts its own brand spelt wrong; the networks get their real names.
+const KAIDO_NETWORK_NAMES: Record<string, string> = {
+  tiktok: 'TikTok',
+  youtube: 'YouTube',
+  instagram: 'Instagram',
+  facebook: 'Facebook',
+  linkedin: 'LinkedIn',
+  gmb: 'Google My Business',
+  x: 'X',
+};
+
+export const kaidoNetworkName = (identifier: string) => {
+  const key = identifier.split('-')[0];
+  return KAIDO_NETWORK_NAMES[key] || key.charAt(0).toUpperCase() + key.slice(1);
+};

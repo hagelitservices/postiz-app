@@ -58,5 +58,6 @@
   "kaido_auth_review": "Review",
   "kaido_auth_review_text": "Before each post you see the preview, the account and every setting. Settings a platform requires cannot be skipped.",
   "kaido_auth_publish": "Publish",
-  "kaido_auth_publish_text": "At the scheduled time the post goes out through the platform’s official API. The status shows up in the calendar."
+  "kaido_auth_publish_text": "At the scheduled time the post goes out through the platform’s official API. The status shows up in the calendar.",
+  "click_to_exit_global_editing": "Click to write a separate version of this post for this channel"
 }

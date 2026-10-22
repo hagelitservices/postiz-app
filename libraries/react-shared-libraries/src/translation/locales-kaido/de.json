@@ -63,5 +63,6 @@
   "kaido_auth_review": "Prüfen",
   "kaido_auth_review_text": "Vor jedem Beitrag sehen Sie Vorschau, Konto und alle Einstellungen. Pflichtangaben einer Plattform lassen sich nicht überspringen.",
   "kaido_auth_publish": "Veröffentlichen",
-  "kaido_auth_publish_text": "Zum geplanten Zeitpunkt geht der Beitrag über die offizielle Schnittstelle der Plattform raus. Den Status sehen Sie im Kalender."
+  "kaido_auth_publish_text": "Zum geplanten Zeitpunkt geht der Beitrag über die offizielle Schnittstelle der Plattform raus. Den Status sehen Sie im Kalender.",
+  "click_to_exit_global_editing": "Klicken, um für diesen Kanal eine eigene Fassung des Beitrags zu schreiben"
 }

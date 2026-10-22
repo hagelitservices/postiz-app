@@ -499,7 +499,7 @@ export const EditorWrapper: FC<{
             <div className="text-[14px] font-[600] text-white mobile:text-textColor">
               {t(
                 'click_to_exit_global_editing',
-                'Click this button to exit global editing and customize the post for this channel'
+                'Click to write a separate version of this post for this channel'
               )}
             </div>
             <div>
